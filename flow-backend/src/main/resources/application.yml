@@ -1,5 +1,5 @@
 server:
-  port: 1004
+  port: 11004
   # 2025年1004是樱和晓的生日
 
 spring:
