@@ -22,7 +22,7 @@ In the era of information explosion, we have more and more photos, documents, an
 - **Multimodal Fusion**: Unified management of data in various formats such as images, documents, and text.
 - **Semantic Retrieval**: Supports "Search Image by Text" and "Semantic Search", breaking the limitations of traditional keyword search.
 - **Privacy & Security**: Private deployment, keeping data completely in your own hands.
-- **Automated Pipeline**: Asynchronous data processing pipeline based on Kafka, automatically completing file vectorization and index construction.
+- **Automated Pipeline**: Asynchronous data processing pipeline based on RabbitMQ, automatically completing file vectorization and index construction.
 
 ---
 
@@ -32,14 +32,14 @@ The system adopts a microservices-based layered architecture design, mainly incl
 
 - **User Management Module**: Identity authentication and RBAC permission control based on JWT.
 - **File Management Module**: Object storage based on MinIO, supporting large file multipart upload.
-- **Data Pipeline**: Asynchronous message-driven architecture based on Kafka, handling time-consuming tasks such as file upload and vectorization.
+- **Data Pipeline**: Asynchronous message-driven architecture based on RabbitMQ, handling time-consuming tasks such as file upload and vectorization.
 - **Vectorization Service**: Integrated AI models (Spring AI + Google Gemini / Alibaba Bailian), transforming multimodal data into high-dimensional vectors.
 - **Search Service**: Vector search engine based on Elasticsearch 8, providing high-performance hybrid search capabilities.
 
 ### Core Process
 
-1.  **File Upload**: User Upload -> MinIO Storage -> MySQL Metadata Record -> Send Kafka Message.
-2.  **Data Processing**: Consume Kafka Message -> Call AI Vectorization Service -> Generate Semantic Vector -> Write to Elasticsearch Index.
+1.  **File Upload**: User Upload -> MinIO Storage -> MySQL Metadata Record -> Send RabbitMQ Message.
+2.  **Data Processing**: Consume RabbitMQ Message -> Call AI Vectorization Service -> Generate Semantic Vector -> Write to Elasticsearch Index.
 3.  **Intelligent Retrieval**: User Input -> Query Vectorization -> Elasticsearch KNN Search -> Aggregate Metadata -> Return Results.
 
 ---
@@ -90,7 +90,7 @@ The system adopts a microservices-based layered architecture design, mainly incl
 
 ### 1. Start Infrastructure
 
-Use Docker Compose to start middleware such as MySQL, MinIO, Kafka, Elasticsearch with one click.
+Use Docker Compose to start middleware such as MySQL, MinIO, RabbitMQ, Elasticsearch with one click.
 
 ```bash
 cd deploy

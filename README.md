@@ -22,7 +22,7 @@ https://github.com/code-with-Anson/LifeBook
 - **多模态融合**：统一管理图片、文档、文本等多种格式数据。
 - **语义检索**：支持“以文搜图”、“语义搜索”，打破传统关键词搜索的局限。
 - **隐私安全**：私有化部署，数据完全掌握在自己手中。
-- **自动化流水线**：基于 Kafka 的异步数据处理管道，自动完成文件的向量化与索引构建。
+- **自动化流水线**：基于 RabbitMQ 的异步数据处理管道，自动完成文件的向量化与索引构建。
 
 ---
 
@@ -32,14 +32,14 @@ https://github.com/code-with-Anson/LifeBook
 
 - **用户管理模块**: 基于 JWT 的身份认证与 RBAC 权限控制。
 - **文件管理模块**: 基于 MinIO 的对象存储，支持大文件分片上传。
-- **数据流水线**: 基于 Kafka 的异步消息驱动架构，处理文件上传、向量化等耗时任务。
+- **数据流水线**: 基于 RabbitMQ 的异步消息驱动架构，处理文件上传、向量化等耗时任务。
 - **向量化服务**: 集成 AI 模型（Spring AI + Google Gemini / 阿里百炼），将多模态数据转化为高维向量。
 - **检索服务**: 基于 Elasticsearch 8 的向量检索引擎，提供高性能的混合搜索能力。
 
 ### 核心流程
 
-1.  **文件上传**: 用户上传 -> MinIO 存储 -> MySQL 记录元数据 -> 发送 Kafka 消息。
-2.  **数据处理**: 消费 Kafka 消息 -> 调用 AI 向量化服务 -> 生成语义向量 -> 写入 Elasticsearch 索引。
+1.  **文件上传**: 用户上传 -> MinIO 存储 -> MySQL 记录元数据 -> 发送 RabbitMQ 消息。
+2.  **数据处理**: 消费 RabbitMQ 消息 -> 调用 AI 向量化服务 -> 生成语义向量 -> 写入 Elasticsearch 索引。
 3.  **智能检索**: 用户输入 -> 查询向量化 -> Elasticsearch KNN 搜索 -> 聚合元数据 -> 返回结果。
 
 ---
@@ -90,7 +90,7 @@ https://github.com/code-with-Anson/LifeBook
 
 ### 1. 启动基础环境
 
-使用 Docker Compose 一键启动 MySQL, MinIO, Kafka, Elasticsearch 等中间件。
+使用 Docker Compose 一键启动 MySQL, MinIO, RabbitMQ, Elasticsearch 等中间件。
 
 ```bash
 cd deploy
