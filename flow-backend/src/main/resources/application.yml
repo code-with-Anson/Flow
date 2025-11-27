@@ -11,16 +11,11 @@ spring:
     url: jdbc:mysql://${mysql.host}:${mysql.port}/flow_db?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: ${mysql.username}
     password: ${mysql.password}
-  kafka:
-    bootstrap-servers: ${kafka.bootstrap-servers}
-    consumer:
-      group-id: flow-group
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+  rabbitmq:
+    host: ${rabbitmq.host}
+    port: ${rabbitmq.port}
+    username: ${rabbitmq.username}
+    password: ${rabbitmq.password}
 
   elasticsearch:
     uris: ${elasticsearch.uris}

@@ -5,8 +5,11 @@ mysql:
   username: root
   password: Flow_Mysql_1004
 
-kafka:
-  bootstrap-servers: localhost:9092
+rabbitmq:
+  host: localhost
+  port: 5672
+  username: flow_mq_admin
+  password: flow_mq_1004
 
 elasticsearch:
   uris: http://localhost:9200

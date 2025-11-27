@@ -51,7 +51,7 @@ The system adopts a microservices-based layered architecture design, mainly incl
 - **Language**: Java 21
 - **Framework**: Spring Boot 3.5.7, Spring Web
 - **ORM**: Mybatis-Plus
-- **Message Queue**: Spring for Kafka
+- **Message Queue**: RabbitMQ (Spring AMQP)
 - **Real-time Communication**: Spring WebSocket
 - **Security**: JWT (JSON Web Token)
 - **AI**: Spring AI
@@ -69,7 +69,7 @@ The system adopts a microservices-based layered architecture design, mainly incl
 
 - **Database**: MySQL 8
 - **Object Storage**: MinIO
-- **Message Queue**: Apache Kafka (KRaft Mode)
+- **Message Queue**: RabbitMQ (Management Plugin)
 - **Search Engine**: Elasticsearch 8 + Kibana
 
 ### DevOps

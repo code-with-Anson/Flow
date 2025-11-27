@@ -51,7 +51,7 @@ https://github.com/code-with-Anson/LifeBook
 - **语言**: Java 21
 - **框架**: Spring Boot 3.5.7, Spring Web
 - **ORM**: Mybatis-Plus
-- **消息队列**: Spring for Kafka
+- **消息队列**: RabbitMQ (Spring AMQP)
 - **实时通信**: Spring WebSocket
 - **安全**: JWT (JSON Web Token)
 - **AI**: Spring AI
@@ -69,7 +69,7 @@ https://github.com/code-with-Anson/LifeBook
 
 - **数据库**: MySQL 8
 - **对象存储**: MinIO
-- **消息队列**: Apache Kafka (KRaft 模式)
+- **消息队列**: RabbitMQ (Management Plugin)
 - **搜索引擎**: Elasticsearch 8 + Kibana
 
 ### 部署与运维 (DevOps)
