@@ -94,5 +94,6 @@ flow-frontend/.env.local
 
 /项目蓝图
 application-dev.yml
+deploy/data/
 
 
