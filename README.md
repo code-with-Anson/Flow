@@ -136,7 +136,7 @@ Flow/
 
 ## 📝 许可证 | License
 
-[MIT License](LICENSE)
+MIT License
 
 ---
 

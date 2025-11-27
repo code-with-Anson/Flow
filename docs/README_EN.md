@@ -136,7 +136,7 @@ Flow/
 
 ## 📝 License
 
-[MIT License](LICENSE)
+MIT License
 
 ---
 
