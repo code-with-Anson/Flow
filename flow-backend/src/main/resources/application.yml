@@ -32,3 +32,9 @@ mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath:mapper/*.xml
+
+flow:
+  jwt:
+    secret: ${jwt.secret}
+    expiration: ${jwt.expiration}
