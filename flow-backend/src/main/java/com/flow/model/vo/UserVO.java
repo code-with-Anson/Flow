@@ -11,4 +11,5 @@ public class UserVO {
     private String avatar;
     private String email;
     private LocalDateTime createTime;
+    private java.util.List<String> roles;
 }

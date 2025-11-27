@@ -12,21 +12,21 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
-@Tag(name = "Authentication", description = "User Authentication")
+@Tag(name = "用户登录", description = "用户登录")
 @RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
 
     @PostMapping("/login")
-    @Operation(summary = "User Login")
+    @Operation(summary = "用户登录")
     public SakuraReply<LoginVO> login(@RequestBody LoginDTO request) {
         String token = authService.login(request);
         return SakuraReply.success(new LoginVO(token));
     }
 
     @PostMapping("/register")
-    @Operation(summary = "User Registration")
+    @Operation(summary = "用户注册")
     public SakuraReply<Void> register(@RequestBody RegisterDTO request) {
         authService.register(request);
         return SakuraReply.success();

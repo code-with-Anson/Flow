@@ -2,7 +2,7 @@ package com.flow.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.flow.common.enums.ErrorCode;
+
 import com.flow.common.result.SakuraReply;
 import com.flow.model.dto.UserDTO;
 import com.flow.model.dto.UserQueryDTO;
@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -41,6 +42,7 @@ public class UserController {
 
     @GetMapping("/list")
     @Operation(summary = "分页查询用户列表")
+    @PreAuthorize("hasRole('ADMIN')")
     public SakuraReply<IPage<UserVO>> pageUsers(UserQueryDTO queryDTO) {
         return SakuraReply.success(userService.pageUsers(queryDTO));
     }
@@ -50,12 +52,6 @@ public class UserController {
     public SakuraReply<Void> addUser(@RequestBody UserDTO userDTO) {
         userService.addUser(userDTO);
         return SakuraReply.success();
-    }
-
-    @PutMapping
-    @Operation(summary = "更新用户")
-    public SakuraReply<Void> updateUser(@RequestBody UserDTO userDTO) {
-        return SakuraReply.error(ErrorCode.PARAM_ERROR, "请使用 PUT /user/{id} 接口");
     }
 
     @PutMapping("/{id}")

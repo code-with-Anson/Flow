@@ -8,15 +8,20 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.filter.LevelFilter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.ConsoleAppender;
+import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy;
 import ch.qos.logback.core.spi.FilterReply;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.logging.logback.ColorConverter;
+import org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter;
 import org.springframework.context.annotation.Configuration;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 public class LoggingConfig {
@@ -28,8 +33,8 @@ public class LoggingConfig {
     private String activeProfile;
 
     private static final String LOG_PATH = "logs";
-    private static final String CONSOLE_LOG_PATTERN = "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}";
-    private static final String FILE_LOG_PATTERN = "%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- [%t] %-40.40logger{39} : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}";
+    private static final String CONSOLE_LOG_PATTERN = "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx";
+    private static final String FILE_LOG_PATTERN = "%d{yyyy-MM-dd HH:mm:ss.SSS} %5p --- [%t] %-40.40logger{39} : %m%n%wEx";
 
     @PostConstruct
     public void init() {
@@ -39,6 +44,12 @@ public class LoggingConfig {
         // initialized some.
         // We will add to it or reset it. Resetting is safer to avoid duplicates.
         context.reset();
+
+        // Register Spring Boot's converters
+        Map<String, String> ruleRegistry = new HashMap<>();
+        ruleRegistry.put("clr", ColorConverter.class.getName());
+        ruleRegistry.put("wEx", ExtendedWhitespaceThrowableProxyConverter.class.getName());
+        context.putObject(CoreConstants.PATTERN_RULE_REGISTRY, ruleRegistry);
 
         // Console Appender
         ConsoleAppender<ILoggingEvent> consoleAppender = createConsoleAppender(context);

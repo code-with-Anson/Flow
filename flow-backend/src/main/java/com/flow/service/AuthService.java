@@ -5,6 +5,7 @@ import com.flow.common.exception.BusinessException;
 import com.flow.model.dto.LoginDTO;
 import com.flow.model.dto.RegisterDTO;
 import com.flow.model.entity.User;
+import com.flow.security.FlowUserDetails;
 import com.flow.security.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,7 +28,8 @@ public class AuthService {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return jwtUtils.generateToken(request.getUsername());
+        FlowUserDetails userDetails = (FlowUserDetails) authentication.getPrincipal();
+        return jwtUtils.generateToken(userDetails.getUser().getId());
     }
 
     public void register(RegisterDTO request) {

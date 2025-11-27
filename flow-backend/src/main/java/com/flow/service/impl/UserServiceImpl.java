@@ -40,6 +40,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return userPage.convert(user -> {
             UserVO vo = new UserVO();
             BeanUtils.copyProperties(user, vo);
+            vo.setRoles(baseMapper.selectRoleCodesByUserId(user.getId()));
             return vo;
         });
     }

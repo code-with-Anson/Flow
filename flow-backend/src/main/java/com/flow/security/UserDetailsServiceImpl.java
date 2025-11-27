@@ -32,4 +32,18 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         return new FlowUserDetails(user, authorities);
     }
+
+    public UserDetails loadUserById(Long userId) {
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found with id: " + userId);
+        }
+
+        List<String> roleCodes = userMapper.selectRoleCodesByUserId(user.getId());
+        List<SimpleGrantedAuthority> authorities = roleCodes.stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+
+        return new FlowUserDetails(user, authorities);
+    }
 }
