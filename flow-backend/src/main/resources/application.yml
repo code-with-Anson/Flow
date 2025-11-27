@@ -1,0 +1,39 @@
+server:
+  port: 1004
+  # 2025年1004是樱和晓的生日
+
+spring:
+  profiles:
+    active: @SakuraChoose@
+  application:
+    name: flow-backend
+  datasource:
+    url: jdbc:mysql://${mysql.host}:${mysql.port}/flow_db?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: ${mysql.username}
+    password: ${mysql.password}
+  kafka:
+    bootstrap-servers: ${kafka.bootstrap-servers}
+    consumer:
+      group-id: flow-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+  elasticsearch:
+    uris: ${elasticsearch.uris}
+    socket-timeout: 30s
+    connection-timeout: 5s
+
+minio:
+  endpoint: ${minio.endpoint}
+  access-key: ${minio.access-key}
+  secret-key: ${minio.secret-key}
+  bucket-name: ${minio.bucket-name}
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

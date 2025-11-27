@@ -1,0 +1,18 @@
+# 这是分环境配置的模板文件
+mysql:
+  host: localhost
+  port: 3306
+  username: root
+  password: Flow_Mysql_1004
+
+kafka:
+  bootstrap-servers: localhost:9092
+
+elasticsearch:
+  uris: http://localhost:9200
+
+minio:
+  endpoint: http://localhost:9000
+  access-key: flow_minio_admin
+  secret-key: flow_minio_1004
+  bucket-name: flow

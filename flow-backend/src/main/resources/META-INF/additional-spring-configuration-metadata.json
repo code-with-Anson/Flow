@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "mysql.host",
+      "type": "java.lang.String",
+      "description": "A description for 'mysql.host'"
+    }
+  ]
+}
