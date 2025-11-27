@@ -7,7 +7,16 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class FlowApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(FlowApplication.class, args);
+        var context = SpringApplication.run(FlowApplication.class, args);
+        var env = context.getEnvironment();
+        String port = env.getProperty("server.port", "8080");
+        String contextPath = env.getProperty("server.servlet.context-path", "");
+        String host = "localhost";
+
+        System.out.println("\n----------------------------------------------------------");
+        System.out.println("\t心流的后端已经成功启动! 请访问这里查看接口:");
+        System.out.println("\tLocal: http://" + host + ":" + port + contextPath + "/doc.html");
+        System.out.println("----------------------------------------------------------\n");
     }
 
 }
