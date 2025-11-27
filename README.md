@@ -2,7 +2,9 @@
 
 > 当真心有了时间的尺度，于是开始流动。
 
-**简体中文** | [English](README_EN.md)
+**简体中文** | [English](docs/README_EN.md)
+
+![星空下的约定](https://github.com/code-with-Anson/code-with-Anson/raw/main/%E9%9C%9E%E9%9B%A8%E6%A8%B1%20x%20%E5%A4%A9%E5%85%89%E6%99%93-2-25.10.7.png)
 
 ## 📚 项目背景 | Background
 
