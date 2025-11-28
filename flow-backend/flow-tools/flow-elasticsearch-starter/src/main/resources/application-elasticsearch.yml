@@ -1,0 +1,5 @@
+spring:
+  elasticsearch:
+    uris: ${elasticsearch.uris}
+    socket-timeout: 30s
+    connection-timeout: 5s

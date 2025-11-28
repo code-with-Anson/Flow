@@ -1,0 +1,17 @@
+server:
+  port: 11004
+  # 2025年1004是樱和晓的生日
+
+spring:
+  profiles:
+    active: @SakuraChoose@
+    include: ai,mybatis,elasticsearch,rabbitmq,minio
+
+flow:
+  jwt:
+    secret: ${jwt.secret}
+    expiration: ${jwt.expiration}
+    
+knife4j:
+  basic:
+    enable: false
