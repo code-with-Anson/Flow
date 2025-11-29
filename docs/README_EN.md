@@ -49,7 +49,7 @@ The system adopts a microservices-based layered architecture design, mainly incl
 ### Backend
 
 - **Language**: Java 21
-- **Framework**: Spring Boot 3.3.6, Spring Web
+- **Framework**: Spring Boot 3.4.0, Spring Web
 - **ORM**: Mybatis-Plus
 - **Message Queue**: RabbitMQ (Spring AMQP)
 - **Real-time Communication**: Spring WebSocket

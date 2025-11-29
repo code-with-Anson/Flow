@@ -49,7 +49,7 @@ https://github.com/code-with-Anson/LifeBook
 ### 后端 (Backend)
 
 - **语言**: Java 21
-- **框架**: Spring Boot 3.3.6, Spring Web
+- **框架**: Spring Boot 3.4.0, Spring Web
 - **ORM**: Mybatis-Plus
 - **消息队列**: RabbitMQ (Spring AMQP)
 - **实时通信**: Spring WebSocket
