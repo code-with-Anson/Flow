@@ -13,11 +13,11 @@ public class Knife4jConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Flow Backend API")
+                        .title("心流后端API")
                         .version("1.0")
-                        .description("Personal Multimodal Digital Memory - Backend API Documentation")
+                        .description("心流后端API文档")
                         .contact(new Contact()
-                                .name("Anson")
+                                .name("Anson&Akatsuki&Sakura")
                                 .email("anson@example.com")));
     }
 }

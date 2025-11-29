@@ -15,7 +15,7 @@
     <modules>
         <module>flow-minio-starter</module>
         <module>flow-mybatis-starter</module>
-        <module>flow-elascticsearch-starter</module>
+        <module>flow-elasticsearch-starter</module>
         <module>flow-rabbitmq-starter</module>
     </modules>
 
