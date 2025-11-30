@@ -59,3 +59,11 @@ services:
       - elasticsearch
 
 
+  redis:
+    image: redis:latest
+    container_name: flow-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass flow_redis_1004 --appendonly yes
+    volumes:
+      - ./data/redis:/data
