@@ -1,8 +1,0 @@
-spring:
-  ai:
-    openai:
-      api-key: ${flow.ai.openai.api-key}
-      base-url: ${flow.ai.openai.base-url}
-      chat:
-        options:
-          model: ${flow.ai.openai.model}

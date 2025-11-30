@@ -17,6 +17,7 @@
         <module>flow-mybatis-starter</module>
         <module>flow-elasticsearch-starter</module>
         <module>flow-rabbitmq-starter</module>
+        <module>flow-redis-starter</module>
     </modules>
 
 </project>

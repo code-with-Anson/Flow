@@ -5,7 +5,12 @@ server:
 spring:
   profiles:
     active: @SakuraChoose@
-    include: ai,mybatis,elasticsearch,rabbitmq,minio
+    include: ai,mybatis,elasticsearch,rabbitmq,minio,redis
+
+  servlet:
+    multipart:
+      max-file-size: 1GB
+      max-request-size: 10GB
 
 flow:
   jwt:

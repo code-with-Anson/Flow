@@ -2,6 +2,7 @@ package com.flow.oss;
 
 import io.minio.*;
 import io.minio.http.Method;
+import io.minio.messages.Item;
 import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.web.multipart.MultipartFile;
@@ -59,6 +60,35 @@ public class OssTemplate {
         minioClient.removeObject(RemoveObjectArgs.builder()
                 .bucket(ossConfig.getBucketName())
                 .object(fileName)
+                .build());
+    }
+
+    @SneakyThrows
+    public void composeObject(String bucketName, String objectName, java.util.List<ComposeSource> sources) {
+        minioClient.composeObject(
+                ComposeObjectArgs.builder()
+                        .bucket(bucketName)
+                        .object(objectName)
+                        .sources(sources)
+                        .build());
+    }
+
+    @SneakyThrows
+    public void putObject(String bucketName, String objectName, InputStream stream, long size, String contentType) {
+        minioClient.putObject(PutObjectArgs.builder()
+                .bucket(bucketName)
+                .object(objectName)
+                .stream(stream, size, -1)
+                .contentType(contentType)
+                .build());
+    }
+
+    @SneakyThrows
+    public Iterable<Result<Item>> listObjects(String bucketName, String prefix, boolean recursive) {
+        return minioClient.listObjects(ListObjectsArgs.builder()
+                .bucket(bucketName)
+                .prefix(prefix)
+                .recursive(recursive)
                 .build());
     }
 }
