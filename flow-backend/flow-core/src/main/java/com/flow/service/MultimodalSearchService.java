@@ -1,9 +1,11 @@
 package com.flow.service;
 
 import com.flow.ai.service.MultimodalEmbeddingService;
+import com.flow.model.entity.File;
 import com.flow.model.es.MultimodalAsset;
 import com.flow.oss.OssTemplate;
 import com.flow.repository.es.MultimodalAssetRepository;
+import com.flow.service.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +30,7 @@ public class MultimodalSearchService {
     private final MultimodalEmbeddingService embeddingService;
     private final MultimodalAssetRepository multimodalAssetRepository;
     private final OssTemplate ossTemplate;
+    private final FileService fileService;
 
     @SneakyThrows
     public MultimodalAsset uploadAndIndex(MultipartFile file, String description, String userId, String model) {
@@ -55,38 +58,64 @@ public class MultimodalSearchService {
             throw new IllegalArgumentException("Unsupported content type: " + contentType);
         }
 
-        // 1. 上传到 MinIO
-        String fileName = ossTemplate.uploadFile(file);
+        // 1. 上传到 MinIO 并保存初始记录
+        com.flow.model.entity.File fileEntity = fileService.upload(file);
+        String fileName = fileEntity.getName();
         // 获取外部访问 URL (如果有配置 external-endpoint，则使用外部 MinIO 客户端生成带正确签名的 URL)
         String url = ossTemplate.getExternalPresignedUrl(fileName);
 
-        // 2. 生成向量
-        List<Double> vector;
-        if ("image".equals(resourceType)) {
-            vector = embeddingService.getImageEmbedding(url, model, 2048);
-        } else if ("video".equals(resourceType)) {
-            vector = embeddingService.getVideoEmbedding(url, model, 2048);
-        } else {
-            // text
-            String textContent = new String(file.getBytes());
-            if (textContent.length() > 64000) {
-                textContent = textContent.substring(0, 64000);
+        // Update status to PROCESSING
+        fileEntity.setStatus(File.STATUS_PROCESSING);
+        fileService.updateById(fileEntity);
+
+        try {
+            // 2. 生成向量
+            List<Double> vector;
+            if ("image".equals(resourceType)) {
+                vector = embeddingService.getImageEmbedding(url, model, 2048);
+            } else if ("video".equals(resourceType)) {
+                vector = embeddingService.getVideoEmbedding(url, model, 2048);
+            } else {
+                // text
+                String textContent = new String(file.getBytes());
+                if (textContent.length() > 64000) {
+                    textContent = textContent.substring(0, 64000);
+                }
+                vector = embeddingService.getTextEmbedding(textContent, model, 2048);
             }
-            vector = embeddingService.getTextEmbedding(textContent, model, 2048);
+
+            // 3. 保存到 ES
+            MultimodalAsset asset = new MultimodalAsset();
+            asset.setId(UUID.randomUUID().toString());
+            asset.setUserId(userId);
+            asset.setResourceType(resourceType);
+            asset.setUrl(url);
+            asset.setFileName(fileName);
+            asset.setDescription(description);
+            asset.setVector(vector);
+            asset.setCreateTime(new Date());
+
+            MultimodalAsset savedAsset = multimodalAssetRepository.save(asset);
+
+            // 4. Update status to COMPLETED and save vectorId
+            fileEntity.setVectorId(savedAsset.getId());
+            fileEntity.setStatus(File.STATUS_COMPLETED);
+            fileService.updateById(fileEntity);
+
+            return savedAsset;
+        } catch (Exception e) {
+            // Update status to FAILED
+            log.error("Failed to process multimodal asset for file: {}", fileName, e);
+            fileEntity.setStatus(File.STATUS_FAILED);
+            // Truncate error message if too long
+            String errorMsg = e.getMessage();
+            if (errorMsg != null && errorMsg.length() > 500) {
+                errorMsg = errorMsg.substring(0, 500);
+            }
+            fileEntity.setErrorMsg(errorMsg);
+            fileService.updateById(fileEntity);
+            throw e;
         }
-
-        // 3. 保存到 ES
-        MultimodalAsset asset = new MultimodalAsset();
-        asset.setId(UUID.randomUUID().toString());
-        asset.setUserId(userId);
-        asset.setResourceType(resourceType);
-        asset.setUrl(url);
-        asset.setFileName(fileName);
-        asset.setDescription(description);
-        asset.setVector(vector);
-        asset.setCreateTime(new Date());
-
-        return multimodalAssetRepository.save(asset);
     }
 
     private final ElasticsearchOperations elasticsearchOperations;

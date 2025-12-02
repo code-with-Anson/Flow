@@ -35,6 +35,11 @@ public class File extends AkatsukiOperator {
      * 2: COMPLETED (处理完成，可检索)
      * -1: FAILED (处理失败)
      */
+    public static final Integer STATUS_UPLOADING = 0;
+    public static final Integer STATUS_PROCESSING = 1;
+    public static final Integer STATUS_COMPLETED = 2;
+    public static final Integer STATUS_FAILED = -1;
+
     private Integer status;
 
     /**
