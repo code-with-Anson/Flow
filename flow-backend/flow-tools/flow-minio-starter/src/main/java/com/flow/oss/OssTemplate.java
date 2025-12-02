@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 public class OssTemplate {
 
     private final MinioClient minioClient;
+    private final MinioClient externalMinioClient;
     private final OssConfig ossConfig;
 
     @SneakyThrows
@@ -53,6 +54,25 @@ public class OssTemplate {
                 .method(Method.GET)
                 .expiry(7, TimeUnit.DAYS)
                 .build());
+    }
+
+    /**
+     * 获取文件外部预览地址 (用于 AI 服务访问)
+     *
+     * @param fileName 文件名
+     * @return 外部预览地址
+     */
+    @SneakyThrows
+    public String getExternalPresignedUrl(String fileName) {
+        if (externalMinioClient != null) {
+            return externalMinioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
+                    .bucket(ossConfig.getBucketName())
+                    .object(fileName)
+                    .method(Method.GET)
+                    .expiry(7, TimeUnit.DAYS)
+                    .build());
+        }
+        return getPreviewUrl(fileName);
     }
 
     @SneakyThrows

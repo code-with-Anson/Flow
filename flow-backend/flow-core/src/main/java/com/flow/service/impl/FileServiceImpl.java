@@ -31,14 +31,12 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
     @Override
     public File upload(MultipartFile file) {
         String fileName = ossTemplate.uploadFile(file);
-        String url = ossTemplate.getPreviewUrl(fileName);
 
         File fileEntity = new File();
         fileEntity.setName(fileName);
         fileEntity.setOriginalName(file.getOriginalFilename());
         fileEntity.setSize(file.getSize());
         fileEntity.setType(file.getContentType());
-        fileEntity.setUrl(url);
         fileEntity.setBucket(ossConfig.getBucketName());
         fileEntity.setPath(fileName);
 
@@ -130,14 +128,12 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
         redisTemplate.delete(key);
 
         // Save file record
-        String url = ossTemplate.getPreviewUrl(mergedObjectName);
         File fileEntity = new File();
         fileEntity.setName(mergedObjectName);
         fileEntity.setOriginalName(fileName);
         fileEntity.setSize(totalSize);
         // fileEntity.setType(contentType); // Content type is hard to guess without
         // file
-        fileEntity.setUrl(url);
         fileEntity.setBucket(bucketName);
         fileEntity.setPath(mergedObjectName);
 

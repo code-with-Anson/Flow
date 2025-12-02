@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 public class OssConfig {
 
     private String endpoint;
+    private String externalEndpoint;
     private String accessKey;
     private String secretKey;
     private String bucketName;
@@ -23,9 +24,16 @@ public class OssConfig {
                 .credentials(accessKey, secretKey)
                 .build();
     }
-    
+
     @Bean
     public OssTemplate ossTemplate(MinioClient minioClient, OssConfig ossConfig) {
-        return new OssTemplate(minioClient, ossConfig);
+        MinioClient externalMinioClient = null;
+        if (ossConfig.getExternalEndpoint() != null && !ossConfig.getExternalEndpoint().isEmpty()) {
+            externalMinioClient = MinioClient.builder()
+                    .endpoint(ossConfig.getExternalEndpoint())
+                    .credentials(ossConfig.getAccessKey(), ossConfig.getSecretKey())
+                    .build();
+        }
+        return new OssTemplate(minioClient, externalMinioClient, ossConfig);
     }
 }

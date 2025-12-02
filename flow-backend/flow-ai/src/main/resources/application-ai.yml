@@ -6,3 +6,8 @@ spring:
       chat:
         options:
           model: ${ai.openai.model}
+
+dashscope:
+  api-key: ${ai.dashscope.api-key}
+  model: ${ai.dashscope.model:qwen2.5-vl-embedding}
+  dimension: ${ai.dashscope.dimension:2048}

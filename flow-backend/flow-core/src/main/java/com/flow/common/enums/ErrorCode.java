@@ -13,7 +13,8 @@ public enum ErrorCode {
     FORBIDDEN(403, "无权限访问"),
     USER_NOT_FOUND(1001, "用户不存在"),
     USERNAME_ALREADY_EXISTS(1002, "用户名已存在"),
-    PASSWORD_ERROR(1003, "密码错误");
+    PASSWORD_ERROR(1003, "密码错误"),
+    FILE_SIZE_EXCEEDS_LIMIT(1004, "文件大小超过限制");
 
     private final int code;
     private final String message;

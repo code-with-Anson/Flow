@@ -19,11 +19,33 @@ public class File extends AkatsukiOperator {
 
     private String type;
 
-    private String url;
-
     private String bucket;
 
     private String path;
+
+    /**
+     * 文件 SHA256/MD5 哈希
+     */
+    private String fileHash;
+
+    /**
+     * 处理状态
+     * 0: UPLOADING (上传中/待处理)
+     * 1: PROCESSING (AI 处理中/向量化中)
+     * 2: COMPLETED (处理完成，可检索)
+     * -1: FAILED (处理失败)
+     */
+    private Integer status;
+
+    /**
+     * 向量库 ID (Qdrant/ES)
+     */
+    private String vectorId;
+
+    /**
+     * 处理失败原因
+     */
+    private String errorMsg;
 
     @TableLogic
     private Integer deleted;

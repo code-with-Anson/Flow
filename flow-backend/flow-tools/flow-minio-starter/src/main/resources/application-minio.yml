@@ -1,5 +1,6 @@
 minio:
   endpoint: ${minio.endpoint}
+  external-endpoint: ${minio.external-endpoint:}
   access-key: ${minio.access-key}
   secret-key: ${minio.secret-key}
   bucket-name: ${minio.bucket-name}
