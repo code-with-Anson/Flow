@@ -1,0 +1,8 @@
+{
+  "name": "@flow/mobile",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "echo 'Mobile app not initialized yet'"
+  }
+}

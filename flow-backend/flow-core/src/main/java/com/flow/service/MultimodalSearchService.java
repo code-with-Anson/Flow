@@ -7,7 +7,7 @@ import com.flow.oss.OssTemplate;
 import com.flow.repository.es.MultimodalAssetRepository;
 import com.flow.model.dto.FileProcessingMessage;
 import com.flow.mq.RabbitMQProducer;
-import com.flow.service.FileService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
