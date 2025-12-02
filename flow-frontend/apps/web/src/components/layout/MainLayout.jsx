@@ -1,7 +1,12 @@
 import React from 'react';
 import './MainLayout.css';
 
+import { Link, useLocation } from 'react-router-dom';
+
 const MainLayout = ({ children }) => {
+  const location = useLocation();
+  const isActive = (path) => location.pathname === path ? 'active' : '';
+
   return (
     <div className="main-layout">
       <header className="header">
@@ -10,8 +15,9 @@ const MainLayout = ({ children }) => {
           <span className="logo-text">Flow</span>
         </div>
         <nav className="nav">
-          <a href="/" className="nav-link active">Home</a>
-          <a href="/explore" className="nav-link">Explore</a>
+          <Link to="/" className={`nav-link ${isActive('/')}`}>Home</Link>
+          <Link to="/chat" className={`nav-link ${isActive('/chat')}`}>Chat</Link>
+          <Link to="/explore" className={`nav-link ${isActive('/explore')}`}>Explore</Link>
         </nav>
         <div className="user-profile">
           <div className="avatar">A</div>
