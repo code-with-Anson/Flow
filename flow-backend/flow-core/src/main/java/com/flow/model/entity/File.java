@@ -39,6 +39,7 @@ public class File extends AkatsukiOperator {
     public static final Integer STATUS_PROCESSING = 1;
     public static final Integer STATUS_COMPLETED = 2;
     public static final Integer STATUS_FAILED = -1;
+    public static final Integer STATUS_QUEUED = 3;
 
     private Integer status;
 

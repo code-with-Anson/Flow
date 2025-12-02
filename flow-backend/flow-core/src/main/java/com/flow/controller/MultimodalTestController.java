@@ -1,6 +1,7 @@
 package com.flow.controller;
 
 import com.flow.common.context.SakuraIdentify;
+import com.flow.model.entity.File;
 import com.flow.model.es.MultimodalAsset;
 import com.flow.service.MultimodalSearchService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,13 +24,24 @@ public class MultimodalTestController {
 
     @Operation(summary = "上传文件并生成向量", description = "支持图片、视频和文本文件的上传，自动生成向量并存储到 Elasticsearch")
     @PostMapping("/upload")
-    public MultimodalAsset upload(
+    public File upload(
             @Parameter(description = "要上传的文件（支持图片/视频/文本）", required = true) @RequestParam("file") MultipartFile file,
             @Parameter(description = "文件描述信息", example = "这是一张美丽的风景照") @RequestParam(value = "description", required = false) String description,
             @Parameter(description = "向量模型名称（留空使用默认模型）", example = "qwen2.5-vl-embedding") @RequestParam(value = "model", required = false) String model) {
         // 从上下文获取当前登录用户ID
         String userId = String.valueOf(SakuraIdentify.getCurrentUserId());
-        return multimodalSearchService.uploadAndIndex(file, description, userId, model);
+        return multimodalSearchService.initiateUpload(file, description, userId, model);
+    }
+
+    @Operation(summary = "触发文件处理", description = "用于分片上传完成后，手动触发文件的向量化处理")
+    @PostMapping("/process")
+    public com.flow.common.result.SakuraReply<Void> process(
+            @Parameter(description = "文件ID", required = true) @RequestParam("fileId") Long fileId,
+            @Parameter(description = "文件描述信息") @RequestParam(value = "description", required = false) String description,
+            @Parameter(description = "向量模型名称") @RequestParam(value = "model", required = false) String model) {
+        String userId = String.valueOf(SakuraIdentify.getCurrentUserId());
+        multimodalSearchService.processUploadedFile(fileId, description, userId, model);
+        return com.flow.common.result.SakuraReply.success();
     }
 
     @Operation(summary = "多模态向量检索", description = "根据文本、图片URL或视频URL进行相似度检索")

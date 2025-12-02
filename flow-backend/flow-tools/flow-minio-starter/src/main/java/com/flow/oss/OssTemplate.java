@@ -111,4 +111,12 @@ public class OssTemplate {
                 .recursive(recursive)
                 .build());
     }
+
+    @SneakyThrows
+    public InputStream getObject(String bucketName, String objectName) {
+        return minioClient.getObject(GetObjectArgs.builder()
+                .bucket(bucketName)
+                .object(objectName)
+                .build());
+    }
 }

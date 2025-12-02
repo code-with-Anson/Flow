@@ -5,6 +5,8 @@ import com.flow.model.entity.File;
 import com.flow.model.es.MultimodalAsset;
 import com.flow.oss.OssTemplate;
 import com.flow.repository.es.MultimodalAssetRepository;
+import com.flow.model.dto.FileProcessingMessage;
+import com.flow.mq.RabbitMQProducer;
 import com.flow.service.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -31,83 +33,135 @@ public class MultimodalSearchService {
     private final MultimodalAssetRepository multimodalAssetRepository;
     private final OssTemplate ossTemplate;
     private final FileService fileService;
+    private final RabbitMQProducer rabbitMQProducer;
 
+    /**
+     * 初始化上传并排队等待处理
+     */
     @SneakyThrows
-    public MultimodalAsset uploadAndIndex(MultipartFile file, String description, String userId, String model) {
-        String contentType = file.getContentType();
-        if (contentType == null) {
-            throw new IllegalArgumentException("Content type is null");
+    public com.flow.model.entity.File initiateUpload(MultipartFile file, String description, String userId,
+            String model) {
+        // 1. 上传到 MinIO 并保存初始记录
+        com.flow.model.entity.File fileEntity = fileService.upload(file);
+
+        // 2. 更新状态为 QUEUED (排队中)
+        fileEntity.setStatus(File.STATUS_QUEUED);
+        fileService.updateById(fileEntity);
+
+        // 3. 提交处理
+        submitForProcessing(fileEntity, description, userId, model);
+
+        return fileEntity;
+    }
+
+    /**
+     * 处理已上传的文件 (用于分片上传后的触发)
+     */
+    @SneakyThrows
+    public void processUploadedFile(Long fileId, String description, String userId, String model) {
+        com.flow.model.entity.File fileEntity = fileService.getById(fileId);
+        if (fileEntity == null) {
+            throw new BusinessException(ErrorCode.RESOURCE_NOT_FOUND, "文件不存在");
         }
 
+        // 更新状态为 QUEUED
+        fileEntity.setStatus(File.STATUS_QUEUED);
+        fileService.updateById(fileEntity);
+
+        submitForProcessing(fileEntity, description, userId, model);
+    }
+
+    private void submitForProcessing(com.flow.model.entity.File fileEntity, String description, String userId,
+            String model) {
+        // 发送消息到 RabbitMQ
+        FileProcessingMessage message = FileProcessingMessage.builder()
+                .fileId(fileEntity.getId())
+                .userId(userId)
+                .model(model)
+                .description(description)
+                .build();
+        rabbitMQProducer.sendFileProcessingMessage(message);
+    }
+
+    /**
+     * 处理队列中的文件
+     */
+    @SneakyThrows
+    public void processFile(FileProcessingMessage message) {
+        Long fileId = message.getFileId();
+        com.flow.model.entity.File fileEntity = fileService.getById(fileId);
+        if (fileEntity == null) {
+            log.error("File not found for id: {}", fileId);
+            return;
+        }
+
+        String fileName = fileEntity.getName();
         String resourceType;
-        // 0. 校验文件大小和类型
+        String contentType = fileEntity.getType(); // 假设 type 是 content type
+
+        if (contentType == null) {
+            // 尝试猜测或失败
+            log.warn("Content type is null for file: {}", fileName);
+            contentType = "application/octet-stream";
+        }
+
         if (contentType.startsWith("image")) {
             resourceType = "image";
-            if (file.getSize() > 5 * 1024 * 1024) {
-                throw new BusinessException(ErrorCode.FILE_SIZE_EXCEEDS_LIMIT, "图片大小不能超过5MB");
-            }
         } else if (contentType.startsWith("video")) {
             resourceType = "video";
-            // DashScope 限制视频大小为 50MB (50700KB)
-            if (file.getSize() > 50 * 1024 * 1024) {
-                throw new BusinessException(ErrorCode.FILE_SIZE_EXCEEDS_LIMIT, "视频大小不能超过50MB");
-            }
         } else if (contentType.startsWith("text")) {
             resourceType = "text";
         } else {
-            throw new IllegalArgumentException("Unsupported content type: " + contentType);
+            // 兜底或错误
+            resourceType = "unknown";
         }
 
-        // 1. 上传到 MinIO 并保存初始记录
-        com.flow.model.entity.File fileEntity = fileService.upload(file);
-        String fileName = fileEntity.getName();
-        // 获取外部访问 URL (如果有配置 external-endpoint，则使用外部 MinIO 客户端生成带正确签名的 URL)
-        String url = ossTemplate.getExternalPresignedUrl(fileName);
-
-        // Update status to PROCESSING
+        // 更新状态为 PROCESSING (处理中)
         fileEntity.setStatus(File.STATUS_PROCESSING);
         fileService.updateById(fileEntity);
 
         try {
+            // 获取外部访问 URL
+            String url = ossTemplate.getExternalPresignedUrl(fileName);
+
             // 2. 生成向量
             List<Double> vector;
+            String model = message.getModel();
             if ("image".equals(resourceType)) {
                 vector = embeddingService.getImageEmbedding(url, model, 2048);
             } else if ("video".equals(resourceType)) {
                 vector = embeddingService.getVideoEmbedding(url, model, 2048);
             } else {
-                // text
-                String textContent = new String(file.getBytes());
-                if (textContent.length() > 64000) {
-                    textContent = textContent.substring(0, 64000);
+                try (java.io.InputStream is = ossTemplate.getObject(fileEntity.getBucket(), fileEntity.getPath())) {
+                    String textContent = new String(is.readAllBytes());
+                    if (textContent.length() > 64000) {
+                        textContent = textContent.substring(0, 64000);
+                    }
+                    vector = embeddingService.getTextEmbedding(textContent, model, 2048);
                 }
-                vector = embeddingService.getTextEmbedding(textContent, model, 2048);
             }
 
             // 3. 保存到 ES
             MultimodalAsset asset = new MultimodalAsset();
             asset.setId(UUID.randomUUID().toString());
-            asset.setUserId(userId);
+            asset.setUserId(message.getUserId());
             asset.setResourceType(resourceType);
             asset.setUrl(url);
             asset.setFileName(fileName);
-            asset.setDescription(description);
+            asset.setDescription(message.getDescription());
             asset.setVector(vector);
             asset.setCreateTime(new Date());
 
             MultimodalAsset savedAsset = multimodalAssetRepository.save(asset);
 
-            // 4. Update status to COMPLETED and save vectorId
+            // 4. 更新状态为 COMPLETED (完成) 并保存 vectorId
             fileEntity.setVectorId(savedAsset.getId());
             fileEntity.setStatus(File.STATUS_COMPLETED);
             fileService.updateById(fileEntity);
 
-            return savedAsset;
         } catch (Exception e) {
-            // Update status to FAILED
             log.error("Failed to process multimodal asset for file: {}", fileName, e);
             fileEntity.setStatus(File.STATUS_FAILED);
-            // Truncate error message if too long
             String errorMsg = e.getMessage();
             if (errorMsg != null && errorMsg.length() > 500) {
                 errorMsg = errorMsg.substring(0, 500);
