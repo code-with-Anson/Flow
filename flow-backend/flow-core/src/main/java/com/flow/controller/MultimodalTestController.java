@@ -3,6 +3,7 @@ package com.flow.controller;
 import com.flow.common.context.SakuraIdentify;
 import com.flow.model.entity.File;
 import com.flow.model.es.MultimodalAsset;
+import com.flow.oss.OssTemplate;
 import com.flow.service.MultimodalSearchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,7 +21,7 @@ import java.util.List;
 public class MultimodalTestController {
 
     private final MultimodalSearchService multimodalSearchService;
-    private final com.flow.oss.OssTemplate ossTemplate;
+    private final OssTemplate ossTemplate;
 
     @Operation(summary = "上传文件并生成向量", description = "支持图片、视频和文本文件的上传，自动生成向量并存储到 Elasticsearch")
     @PostMapping("/upload")

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Bubble, Sender, XProvider } from '@ant-design/x';
 import { UserOutlined, RobotOutlined } from '@ant-design/icons';
+import { XMarkdown } from '@ant-design/x-markdown';
+import '@ant-design/x-markdown/es/XMarkdown/index.css'; // Import CSS
 import MainLayout from '../components/layout/MainLayout';
 import GlassPanel from '../components/ui/GlassPanel';
 import './Chat.css';
@@ -27,6 +29,17 @@ const Chat = () => {
       content: 'Hello! I am Flow AI. How can I help you today?',
     },
   ]);
+
+  // Process items: convert AI content to XMarkdown
+  const processedItems = items.map(item => {
+    if (item.role === 'ai') {
+      return {
+        ...item,
+        content: <XMarkdown content={item.content} />,
+      };
+    }
+    return item;
+  });
 
   const onSubmit = async (value) => {
     const newItems = [
@@ -89,7 +102,7 @@ const Chat = () => {
             }
         }
 
-        // Update UI
+        // Update UI - store raw text in content
         setItems(prev => prev.map(item => 
           item.key === aiMsgId 
             ? { ...item, content: aiContent, loading: false } 
@@ -113,7 +126,12 @@ const Chat = () => {
         <GlassPanel className="chat-panel">
           <XProvider>
             <div className="chat-messages">
-              <Bubble.List items={items} roles={roles} />
+              <Bubble.List 
+                items={processedItems} 
+                roles={roles} 
+                autoScroll={false}
+                style={{ display: 'flex', flexDirection: 'column' }}
+              />
             </div>
             <div className="chat-input-area">
               <Sender
