@@ -3,8 +3,9 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Home from './pages/Home';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
-import Chat from './pages/Chat';
+
 import Explore from './pages/Explore';
+import AiChatPage from './pages/ai/AiChatPage';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -32,14 +33,15 @@ function App() {
               <Home />
             </PrivateRoute>
           } />
-          <Route path="/chat" element={
-            <PrivateRoute>
-              <Chat />
-            </PrivateRoute>
-          } />
+
           <Route path="/explore" element={
             <PrivateRoute>
               <Explore />
+            </PrivateRoute>
+          } />
+          <Route path="/ai" element={
+            <PrivateRoute>
+              <AiChatPage />
             </PrivateRoute>
           } />
         </Routes>

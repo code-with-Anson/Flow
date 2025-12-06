@@ -1,4 +1,4 @@
-package com.flow.ai.service;
+package com.flow.service;
 
 import com.flow.ai.model.dto.ChatSakuraReq;
 import reactor.core.publisher.Flux;

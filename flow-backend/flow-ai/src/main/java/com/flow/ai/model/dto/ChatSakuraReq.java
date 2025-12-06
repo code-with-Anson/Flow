@@ -4,8 +4,10 @@ import com.flow.ai.model.enums.AiProvider;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-@Data
 public class ChatSakuraReq {
+
+    @Schema(description = "对话ID（可选，新对话不传）")
+    private Long conversationId;
 
     @Schema(description = "用户消息", requiredMode = Schema.RequiredMode.REQUIRED)
     private String message;
@@ -21,4 +23,52 @@ public class ChatSakuraReq {
 
     @Schema(description = "AI 提供商", defaultValue = "OPENAI")
     private AiProvider provider = AiProvider.OPENAI;
+
+    public Long getConversationId() {
+        return conversationId;
+    }
+
+    public void setConversationId(Long conversationId) {
+        this.conversationId = conversationId;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+    public void setBaseUrl(String baseUrl) {
+        this.baseUrl = baseUrl;
+    }
+
+    public String getApiKey() {
+        return apiKey;
+    }
+
+    public void setApiKey(String apiKey) {
+        this.apiKey = apiKey;
+    }
+
+    public AiProvider getProvider() {
+        return provider;
+    }
+
+    public void setProvider(AiProvider provider) {
+        this.provider = provider;
+    }
 }

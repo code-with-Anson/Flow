@@ -16,7 +16,7 @@ const MainLayout = ({ children }) => {
         </div>
         <nav className="nav">
           <Link to="/" className={`nav-link ${isActive('/')}`}>Home</Link>
-          <Link to="/chat" className={`nav-link ${isActive('/chat')}`}>Chat</Link>
+          <Link to="/ai" className={`nav-link ${isActive('/ai')}`}>AI</Link>
           <Link to="/explore" className={`nav-link ${isActive('/explore')}`}>Explore</Link>
         </nav>
         <div className="user-profile">

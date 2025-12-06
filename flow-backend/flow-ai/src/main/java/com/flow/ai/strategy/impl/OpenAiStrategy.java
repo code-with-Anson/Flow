@@ -3,13 +3,22 @@ package com.flow.ai.strategy.impl;
 import com.flow.ai.model.dto.ChatSakuraReq;
 import com.flow.ai.model.enums.AiProvider;
 import com.flow.ai.strategy.AiStrategy;
+
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class OpenAiStrategy implements AiStrategy {
@@ -21,13 +30,26 @@ public class OpenAiStrategy implements AiStrategy {
     }
 
     @Override
-    public Flux<String> streamChat(ChatSakuraReq request) {
-        return getChatClient(request).prompt()
-                .user(request.getMessage())
+    public Flux<String> streamChat(ChatSakuraReq request, List<Message> history) {
+        List<Message> messages = new ArrayList<>();
+
+        // 1. System Prompt
+        messages.add(new SystemMessage("你是一位友善的 AI 助手，能够帮助用户回答问题、提供信息。"));
+
+        // 2. Load History
+        if (history != null && !history.isEmpty()) {
+            messages.addAll(history);
+        }
+
+        // 3. Current User Message
+        messages.add(new UserMessage(request.getMessage()));
+
+        // 4. Create Prompt and Stream
+        return getChatClient(request).prompt(new Prompt(messages))
                 .stream()
                 .content()
                 .onErrorResume(e -> {
-                    return Flux.just("Anson, 樱好像遇到了一点小问题... (Error: " + e.getMessage() + ")");
+                    return Flux.just("项目有些小问题... (Error: " + e.getMessage() + ")");
                 });
     }
 

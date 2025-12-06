@@ -13,6 +13,8 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.query.StringQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -208,10 +210,9 @@ public class MultimodalSearchService {
                 }
                 """, new com.fasterxml.jackson.databind.ObjectMapper().valueToTree(vector).toString());
 
-        org.springframework.data.elasticsearch.core.query.StringQuery stringQuery = new org.springframework.data.elasticsearch.core.query.StringQuery(
-                knnJson);
+        StringQuery stringQuery = new StringQuery(knnJson);
 
-        org.springframework.data.elasticsearch.core.SearchHits<MultimodalAsset> searchHits = elasticsearchOperations
+        SearchHits<MultimodalAsset> searchHits = elasticsearchOperations
                 .search(stringQuery, MultimodalAsset.class);
 
         return searchHits.stream()
