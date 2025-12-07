@@ -23,7 +23,7 @@ const MainLayout = ({ children }) => {
           <div className="avatar">A</div>
         </div>
       </header>
-      <main className="content">
+      <main className={`content ${location.pathname === '/ai' ? 'full-width' : ''}`}>
         {children}
       </main>
     </div>

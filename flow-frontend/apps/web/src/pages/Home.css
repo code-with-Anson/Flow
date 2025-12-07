@@ -16,7 +16,7 @@
   line-height: 1.1;
   font-weight: 800;
   margin-bottom: var(--space-md);
-  background: linear-gradient(to right, #fff, #cbd5e1);
+  background: linear-gradient(to right, #1e293b, #475569);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -24,13 +24,13 @@
 .highlight {
   color: var(--color-primary);
   -webkit-text-fill-color: var(--color-primary);
-  text-shadow: 0 0 20px var(--color-primary-glow);
+  text-shadow: 0 0 30px rgba(37, 99, 235, 0.3);
 }
 
 .highlight-blue {
   color: var(--color-secondary);
   -webkit-text-fill-color: var(--color-secondary);
-  text-shadow: 0 0 20px var(--color-secondary-glow);
+  text-shadow: 0 0 30px rgba(219, 39, 119, 0.3);
 }
 
 .hero-subtitle {
@@ -91,7 +91,7 @@
   right: 10%;
   animation-delay: 2s;
   z-index: 2;
-  background: rgba(30, 41, 59, 0.8); /* Slightly more opaque */
+  background: rgba(255, 255, 255, 0.8); /* Slightly more opaque */
 }
 
 .card-3 {

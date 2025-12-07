@@ -228,85 +228,158 @@ const AiChatPage = () => {
 
     return (
         <MainLayout>
-            <Layout style={{ height: 'calc(100vh - 64px)', background: token.colorBgLayout }}>
-                <Sider 
-                    width={280} 
-                    theme="light" 
-                    style={{ 
-                        borderRight: `1px solid ${token.colorBorderSecondary}`,
-                        overflowY: 'auto'
-                    }}
-                >
-                    <div style={{ padding: 16 }}>
-                        <Button type="primary" block icon={<PlusOutlined />} onClick={handleNewConversation}>
+            <div style={{ 
+                display: 'flex', 
+                height: 'calc(100vh - 80px)', 
+                background: '#fff', 
+                overflow: 'hidden' 
+            }}>
+                {/* Custom Sidebar */}
+                <div style={{ 
+                    width: '280px', 
+                    // Remove border, use subtle background for distinction
+                    background: '#fbfbfb',
+                    display: 'flex', 
+                    flexDirection: 'column',
+                }}>
+                    <div style={{ padding: '20px' }}>
+                         <Button 
+                            type="primary" 
+                            shape="round" 
+                            block 
+                            icon={<PlusOutlined />} 
+                            onClick={handleNewConversation}
+                            style={{ boxShadow: 'none' }}
+                        >
                             新对话
                         </Button>
                     </div>
-                    <List
-                        itemLayout="horizontal"
-                        dataSource={conversations}
-                        renderItem={(item) => (
-                            <List.Item 
-                                style={{ 
-                                    cursor: 'pointer', 
-                                    padding: '12px 16px',
-                                    background: currentConversationId === item.id ? token.colorBgContainerDisabled : 'transparent'
-                                }}
-                                onClick={() => setCurrentConversationId(item.id)}
-                                actions={[
-                                    <DeleteOutlined key="delete" onClick={(e) => handleDeleteConversation(e, item.id)} />
-                                ]}
-                            >
-                                <List.Item.Meta
-                                    avatar={<MessageOutlined />}
-                                    title={
-                                        <Text ellipsis style={{ width: 140 }}>
-                                            {item.title}
-                                        </Text>
-                                    }
-                                    description={<Text type="secondary" style={{ fontSize: 12 }}>{item.model}</Text>}
-                                />
-                            </List.Item>
-                        )}
-                    />
-                </Sider>
-                <Content style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}>
-                     <div ref={chatContainerRef} style={{ flex: 1, overflowY: 'auto', padding: '24px 24px 80px 24px' }}>
-                        <Bubble.List 
-                            items={renderBubbles()}
-                            autoScroll={false}
-                            roles={{
-                             ai: { 
-                                placement: 'start', 
-                                avatar: { src: 'https://api.dicebear.com/7.x/bottts/svg?seed=Sakura', style: { backgroundColor: '#f56a00' } },
-                                style: { maxWidth: 600, marginInlineEnd: 48 }, // Better styling
-                             },
-                             user: { 
-                                placement: 'end', 
-                                avatar: { src: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Anson', style: { backgroundColor: '#87d068' } } 
-                             }
-                        }}
+                    <div style={{ flex: 1, overflowY: 'auto' }}>
+                        <List
+                            itemLayout="horizontal"
+                            dataSource={conversations}
+                            split={false}
+                            renderItem={(item) => (
+                                <List.Item 
+                                    style={{ 
+                                        cursor: 'pointer', 
+                                        padding: '12px 20px',
+                                        transition: 'all 0.2s',
+                                        background: currentConversationId === item.id ? '#fff' : 'transparent',
+                                        borderLeft: currentConversationId === item.id ? '3px solid #1677ff' : '3px solid transparent'
+                                    }}
+                                    className="conversation-item"
+                                    onClick={() => setCurrentConversationId(item.id)}
+                                    actions={[
+                                        <div className="delete-icon" style={{ opacity: 0.5, transition: 'opacity 0.2s' }}>
+                                             <DeleteOutlined onClick={(e) => handleDeleteConversation(e, item.id)} />
+                                        </div>
+                                    ]}
+                                >
+                                    <List.Item.Meta
+                                        avatar={<MessageOutlined style={{ color: currentConversationId === item.id ? '#1677ff' : '#999' }} />}
+                                        title={
+                                            <Text ellipsis style={{ width: 140, fontWeight: currentConversationId === item.id ? 600 : 400 }}>
+                                                {item.title}
+                                            </Text>
+                                        }
+                                    />
+                                </List.Item>
+                            )}
                         />
+                    </div>
+                </div>
+
+                {/* Main Chat Area */}
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
+                     <div ref={chatContainerRef} style={{ 
+                         flex: 1, 
+                         overflowY: 'auto', 
+                         padding: '40px 10% 100px 10%',
+                         scrollBehavior: 'smooth'
+                    }}>
+                        {messages.length === 0 && !streamingContent ? (
+                            <div style={{ 
+                                height: '100%', 
+                                display: 'flex', 
+                                flexDirection: 'column', 
+                                justifyContent: 'center', 
+                                alignItems: 'center', 
+                                color: '#ccc',
+                                userSelect: 'none'
+                            }}>
+                                <MessageOutlined style={{ fontSize: 48, marginBottom: 16, opacity: 0.5 }} />
+                                <Text type="secondary">开始一个新的对话吧</Text>
+                            </div>
+                        ) : (
+                            <Bubble.List 
+                                items={renderBubbles()}
+                                autoScroll={false}
+                                roles={{
+                                    ai: { 
+                                        placement: 'start', 
+                                        avatar: { src: 'https://api.dicebear.com/7.x/bottts/svg?seed=Sakura', style: { backgroundColor: '#fff', border: '1px solid #eee' } },
+                                        style: { 
+                                            maxWidth: 800, 
+                                            background: '#f7f7f7',
+                                            borderRadius: '12px',
+                                            padding: '12px 20px',
+                                            border: 'none',
+                                            boxShadow: 'none'
+                                        }
+                                    },
+                                    user: { 
+                                        placement: 'end', 
+                                        avatar: { src: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Anson', style: { backgroundColor: '#e6f4ff' } },
+                                        style: {
+                                            maxWidth: 800,
+                                            background: '#1677ff',
+                                            color: '#fff',
+                                            borderRadius: '12px',
+                                            padding: '12px 20px',
+                                            border: 'none',
+                                            boxShadow: '0 2px 8px rgba(22, 119, 255, 0.15)'
+                                        }
+                                    }
+                                }}
+                            />
+                        )}
                         <div ref={messagesEndRef} />
                      </div>
                      
+                     {/* Input Area */}
                      <div style={{ 
-                         padding: 24, 
-                         borderTop: `1px solid ${token.colorBorderSecondary}`,
-                         background: token.colorBgContainer
+                         position: 'absolute',
+                         bottom: 0,
+                         left: 0,
+                         right: 0,
+                         padding: '24px calc(10% + 40px)', 
+                         background: 'linear-gradient(to top, #ffffff 80%, rgba(255,255,255,0))',
                      }}>
-                         <Sender 
-                             value={inputValue}
-                             onChange={(v) => setInputValue(v)}
-                             onSubmit={handleSubmit}
-                             loading={loading}
-                             placeholder="给樱和晓发送消息..."
-                         />
+                         <div style={{ 
+                             background: '#fff', 
+                             borderRadius: '24px', 
+                             boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                             border: '1px solid #eee',
+                             padding: '4px'
+                         }}>
+                             <Sender 
+                                 value={inputValue}
+                                 onChange={(v) => setInputValue(v)}
+                                 onSubmit={handleSubmit}
+                                 loading={loading}
+                                 placeholder="给樱和晓发送消息..."
+                                 style={{ border: 'none', background: 'transparent' }}
+                             />
+                         </div>
                      </div>
-                </Content>
-            </Layout>
+                </div>
+            </div>
         </MainLayout>
     );
 };
 
 export default AiChatPage;
+
+
+

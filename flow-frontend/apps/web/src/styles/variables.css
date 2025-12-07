@@ -1,19 +1,19 @@
 :root {
-  /* Colors - Deep Void & Starlight */
-  --color-bg-deep: #0f172a;
-  --color-bg-surface: rgba(30, 41, 59, 0.7);
-  --color-bg-glass: rgba(255, 255, 255, 0.05);
+  /* Colors - Clean White & Sakura */
+  --color-bg-deep: #f8fafc;
+  --color-bg-surface: rgba(255, 255, 255, 0.8);
+  --color-bg-glass: rgba(255, 255, 255, 0.4);
 
   --color-primary: #f472b6; /* Sakura Pink */
-  --color-primary-glow: rgba(244, 114, 182, 0.5);
+  --color-primary-glow: rgba(244, 114, 182, 0.3);
 
   --color-secondary: #60a5fa; /* Dawn Blue */
-  --color-secondary-glow: rgba(96, 165, 250, 0.5);
+  --color-secondary-glow: rgba(96, 165, 250, 0.3);
 
-  --color-text-main: #f8fafc;
-  --color-text-muted: #94a3b8;
+  --color-text-main: #1e293b;
+  --color-text-muted: #64748b;
 
-  --color-border: rgba(255, 255, 255, 0.1);
+  --color-border: rgba(0, 0, 0, 0.06);
 
   /* Spacing */
   --space-xs: 0.5rem;
@@ -30,6 +30,6 @@
 
   /* Effects */
   --blur-md: 12px;
-  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --shadow-glass: 0 4px 20px rgba(0, 0, 0, 0.05);
   --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
