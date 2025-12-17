@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+import com.flow.common.context.SakuraIdentify;
+
 @Tag(name = "文件管理")
 @RestController
 @RequestMapping("/file")
@@ -21,6 +24,16 @@ public class FileController {
     @PostMapping("/upload")
     public SakuraReply<File> upload(@RequestParam("file") MultipartFile file) {
         return SakuraReply.success(fileService.upload(file));
+    }
+
+    @Operation(summary = "获取当前用户文件列表")
+    @GetMapping("/list")
+    public SakuraReply<List<File>> listUserFiles() {
+        Long userId = SakuraIdentify.getCurrentUserId();
+        return SakuraReply.success(fileService.lambdaQuery()
+                .eq(File::getCreateUser, userId)
+                .orderByDesc(File::getCreateTime)
+                .list());
     }
 
     @Operation(summary = "获取文件详情")

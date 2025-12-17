@@ -15,9 +15,11 @@
     "@ant-design/x-markdown": "^2.0.0",
     "antd": "^6.0.1",
     "axios": "^1.13.2",
+    "i18next": "^25.7.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.67.0",
+    "react-i18next": "^16.4.1",
     "react-router-dom": "^7.9.6"
   },
   "devDependencies": {

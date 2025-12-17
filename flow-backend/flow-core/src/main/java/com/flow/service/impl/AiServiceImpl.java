@@ -3,11 +3,15 @@ package com.flow.service.impl;
 import com.flow.ai.factory.AiStrategyFactory;
 import com.flow.ai.model.dto.ChatSakuraReq;
 import com.flow.service.AiService;
+import com.flow.service.MultimodalSearchService;
+import com.flow.model.es.MultimodalAsset;
 import com.flow.model.entity.AiMessage;
 import com.flow.service.ConversationService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -23,10 +27,16 @@ public class AiServiceImpl implements AiService {
 
     private final AiStrategyFactory aiStrategyFactory;
     private final ConversationService conversationService;
+    private final MultimodalSearchService multimodalSearchService;
 
-    public AiServiceImpl(AiStrategyFactory aiStrategyFactory, ConversationService conversationService) {
+    @Value("${ai.rag.context-limit:6000}")
+    private int ragContextLimit;
+
+    public AiServiceImpl(AiStrategyFactory aiStrategyFactory, ConversationService conversationService,
+            MultimodalSearchService multimodalSearchService) {
         this.aiStrategyFactory = aiStrategyFactory;
         this.conversationService = conversationService;
+        this.multimodalSearchService = multimodalSearchService;
     }
 
     @Override
@@ -63,12 +73,58 @@ public class AiServiceImpl implements AiService {
                             historyMessages.add(new AssistantMessage(msg.getContent()));
                         }
                     }
+
+                    // RAG Logic
+                    if (Boolean.TRUE.equals(request.getUseKnowledgeBase())) {
+                        try {
+                            // Search for relevant documents
+                            List<MultimodalAsset> assets = multimodalSearchService.search(request.getMessage(), "text",
+                                    null);
+
+                            if (assets != null && !assets.isEmpty()) {
+                                StringBuilder ragContext = new StringBuilder();
+                                ragContext.append("基于以下知识库内容回答用户问题：\n");
+                                for (int i = 0; i < assets.size(); i++) {
+                                    MultimodalAsset asset = assets.get(i);
+                                    ragContext.append("---\n");
+                                    ragContext.append("[").append(i + 1).append("] 类型: ")
+                                            .append(asset.getResourceType()).append(", 文件名: ")
+                                            .append(asset.getFileName()).append("\n");
+
+                                    // 对于 Image/Video，提供 URL
+                                    if ("image".equals(asset.getResourceType())
+                                            || "video".equals(asset.getResourceType())) {
+                                        ragContext.append("链接: ").append(asset.getUrl()).append("\n");
+                                    }
+
+                                    // Use Description and truncate based on config
+                                    String content = asset.getDescription();
+                                    if (content != null && !content.isEmpty()) {
+                                        if (content.length() > ragContextLimit) {
+                                            content = content.substring(0, ragContextLimit) + "...";
+                                        }
+                                        ragContext.append("描述/内容: ").append(content).append("\n");
+                                    }
+                                }
+                                ragContext.append("---\n");
+                                ragContext.append("用户问题: ").append(request.getMessage()).append("\n");
+                                ragContext.append(
+                                        "(说明) 如果参考资料中包含图片或视频链接 (URL)，请务必在回答中通过 Markdown 格式 (如 ![title](url)) 将其展示出来，并结合描述进行回答。");
+
+                                // Insert as System Message at the start of history
+                                historyMessages.add(0, new SystemMessage(ragContext.toString()));
+                            }
+                        } catch (Exception e) {
+                            System.err.println("RAG Search failed: " + e.getMessage());
+                        }
+                    }
+
                     return historyMessages;
                 }).subscribeOn(Schedulers.boundedElastic()))
                 .defaultIfEmpty(Collections.emptyList())
                 .flatMapMany(history -> {
                     StringBuilder aiResponseBuilder = new StringBuilder();
-                    // 3. 调用 AI - 这里 history 是 List<Message>
+                    // 3. 调用 AI
                     return aiStrategyFactory.getStrategy(request.getProvider())
                             .streamChat(request, history)
                             .doOnNext(aiResponseBuilder::append)

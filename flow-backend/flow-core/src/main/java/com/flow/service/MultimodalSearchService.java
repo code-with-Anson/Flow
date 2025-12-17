@@ -1,6 +1,7 @@
 package com.flow.service;
 
 import com.flow.ai.service.MultimodalEmbeddingService;
+import com.flow.service.processor.FileProcessor;
 import com.flow.model.entity.File;
 import com.flow.model.es.MultimodalAsset;
 import com.flow.oss.OssTemplate;
@@ -18,9 +19,8 @@ import org.springframework.data.elasticsearch.core.query.StringQuery;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Date;
 import java.util.List;
-import java.util.UUID;
+
 import java.util.stream.Collectors;
 
 import com.flow.common.enums.ErrorCode;
@@ -31,11 +31,10 @@ import com.flow.common.exception.BusinessException;
 @RequiredArgsConstructor
 public class MultimodalSearchService {
 
-    private final MultimodalEmbeddingService embeddingService;
-    private final MultimodalAssetRepository multimodalAssetRepository;
-    private final OssTemplate ossTemplate;
+    private final MultimodalEmbeddingService embeddingService; // used by search
     private final FileService fileService;
     private final RabbitMQProducer rabbitMQProducer;
+    private final List<FileProcessor> fileProcessors;
 
     /**
      * 初始化上传并排队等待处理
@@ -97,78 +96,37 @@ public class MultimodalSearchService {
             return;
         }
 
-        String fileName = fileEntity.getName();
-        String resourceType;
-        String contentType = fileEntity.getType(); // 假设 type 是 content type
-
-        if (contentType == null) {
-            // 尝试猜测或失败
-            log.warn("Content type is null for file: {}", fileName);
-            contentType = "application/octet-stream";
-        }
-
-        if (contentType.startsWith("image")) {
-            resourceType = "image";
-        } else if (contentType.startsWith("video")) {
-            resourceType = "video";
-        } else if (contentType.startsWith("text")) {
-            resourceType = "text";
-        } else {
-            // 兜底或错误
-            resourceType = "unknown";
-        }
-
-        // 更新状态为 PROCESSING (处理中)
+        // 更新状态为 PROCESSING
         fileEntity.setStatus(File.STATUS_PROCESSING);
         fileService.updateById(fileEntity);
 
-        try {
-            // 获取外部访问 URL
-            String url = ossTemplate.getExternalPresignedUrl(fileName);
+        String mimeType = fileEntity.getType();
+        if (mimeType == null) {
+            mimeType = "application/octet-stream";
+        }
 
-            // 2. 生成向量
-            List<Double> vector;
-            String model = message.getModel();
-            if ("image".equals(resourceType)) {
-                vector = embeddingService.getImageEmbedding(url, model, 2048);
-            } else if ("video".equals(resourceType)) {
-                vector = embeddingService.getVideoEmbedding(url, model, 2048);
-            } else {
-                try (java.io.InputStream is = ossTemplate.getObject(fileEntity.getBucket(), fileEntity.getPath())) {
-                    String textContent = new String(is.readAllBytes());
-                    if (textContent.length() > 64000) {
-                        textContent = textContent.substring(0, 64000);
-                    }
-                    vector = embeddingService.getTextEmbedding(textContent, model, 2048);
+        try {
+            // 策略分发
+            boolean processed = false;
+            for (FileProcessor processor : fileProcessors) {
+                if (processor.supports(mimeType)) {
+                    processor.process(fileEntity, message);
+                    processed = true;
+                    break;
                 }
             }
 
-            // 3. 保存到 ES
-            MultimodalAsset asset = new MultimodalAsset();
-            asset.setId(UUID.randomUUID().toString());
-            asset.setUserId(message.getUserId());
-            asset.setResourceType(resourceType);
-            asset.setUrl(url);
-            asset.setFileName(fileName);
-            asset.setDescription(message.getDescription());
-            asset.setVector(vector);
-            asset.setCreateTime(new Date());
-
-            MultimodalAsset savedAsset = multimodalAssetRepository.save(asset);
-
-            // 4. 更新状态为 COMPLETED (完成) 并保存 vectorId
-            fileEntity.setVectorId(savedAsset.getId());
-            fileEntity.setStatus(File.STATUS_COMPLETED);
-            fileService.updateById(fileEntity);
-
-        } catch (Exception e) {
-            log.error("Failed to process multimodal asset for file: {}", fileName, e);
-            fileEntity.setStatus(File.STATUS_FAILED);
-            String errorMsg = e.getMessage();
-            if (errorMsg != null && errorMsg.length() > 500) {
-                errorMsg = errorMsg.substring(0, 500);
+            if (!processed) {
+                log.warn("No processor found for mime type: {}", mimeType);
+                // 可以选择抛错或者标记为 UNSUPPORTED
+                fileEntity.setStatus(File.STATUS_FAILED);
+                fileEntity.setErrorMsg("Unsupported file type: " + mimeType);
+                fileService.updateById(fileEntity);
             }
-            fileEntity.setErrorMsg(errorMsg);
+        } catch (Exception e) {
+            log.error("Failed to process file: {}", fileEntity.getName(), e);
+            fileEntity.setStatus(File.STATUS_FAILED);
+            fileEntity.setErrorMsg(e.getMessage());
             fileService.updateById(fileEntity);
             throw e;
         }

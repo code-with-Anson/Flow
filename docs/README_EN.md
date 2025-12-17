@@ -59,10 +59,10 @@ The system adopts a microservices-based layered architecture design, mainly incl
 ### Frontend
 
 - **Language**: TypeScript
-- **Framework**: Vue 3
+- **Framework**: React 19
 - **Build Tool**: Vite
-- **State Management**: Pinia
-- **UI Component Library**: Element Plus
+- **State Management**: React Hooks
+- **UI Component Library**: Ant Design 6
 - **Network Request**: Axios
 
 ### Data & Middleware
@@ -127,7 +127,7 @@ Flow/
 ├── flow-backend/        # Backend project (Spring Boot)
 │   ├── src/main/java    # Java source code
 │   └── src/main/resources # Configuration files
-├── flow-frontend/       # Frontend project (Vue 3)
+├── flow-frontend/       # Frontend project (React 19)
 ├── 项目蓝图/             # Project design documents and materials
 └── README.md            # Project documentation
 ```

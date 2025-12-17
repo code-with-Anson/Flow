@@ -38,6 +38,7 @@ public class AuthService {
         }
 
         User user = new User();
+        user.setUsername(registerSakuraReq.getUsername());
         user.setPassword(passwordEncoder.encode(registerSakuraReq.getPassword()));
         user.setNickname(registerSakuraReq.getNickname());
         user.setEmail(registerSakuraReq.getEmail());

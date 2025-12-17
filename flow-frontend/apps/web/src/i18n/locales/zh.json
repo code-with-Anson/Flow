@@ -1,0 +1,58 @@
+{
+  "nav": {
+    "home": "首页",
+    "ai": "AI",
+    "knowledgeBase": "知识库",
+    "explore": "探索"
+  },
+  "knowledgeBase": {
+    "title": "知识库管理",
+    "uploadButton": "上传新文件",
+    "columns": {
+      "fileName": "文件名",
+      "size": "大小",
+      "status": "状态",
+      "uploadTime": "上传时间",
+      "actions": "操作"
+    },
+    "status": {
+      "uploading": "上传中",
+      "processing": "处理中",
+      "completed": "已完成",
+      "failed": "失败",
+      "queued": "排队中",
+      "unknown": "未知"
+    },
+    "actions": {
+      "preview": "预览",
+      "delete": "删除"
+    },
+    "messages": {
+      "loadFailed": "加载文件列表失败",
+      "deleteFailed": "删除失败",
+      "deleteSuccess": "删除成功",
+      "uploadFailed": "操作失败",
+      "uploadSuccess": "上传并处理成功",
+      "uploading": "正在上传...",
+      "ingesting": "正在摄入知识库...",
+      "linkFailed": "获取链接失败",
+      "noLink": "无法获取文件链接"
+    },
+    "deleteConfirm": {
+      "title": "确认删除?",
+      "content": "确定要删除文件 \"{{name}}\" 吗？这将同时删除相关的知识库向量。"
+    },
+    "viewReason": "(查看原因)"
+  },
+  "aiChat": {
+    "placeholder": "给FLOW发送消息...",
+    "newConversation": "新对话",
+    "enableKnowledgeBase": "启用知识库",
+    "uploadMaterial": "上传资料",
+    "startNewChat": "开始一个新的对话吧"
+  },
+  "common": {
+    "loading": "加载中...",
+    "error": "发生错误"
+  }
+}

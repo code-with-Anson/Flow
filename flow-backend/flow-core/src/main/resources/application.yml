@@ -20,3 +20,7 @@ flow:
 knife4j:
   basic:
     enable: false
+ai:
+  rag:
+    context-limit: 3000
+    max-docs: 5

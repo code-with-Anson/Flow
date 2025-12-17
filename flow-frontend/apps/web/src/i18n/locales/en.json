@@ -1,0 +1,58 @@
+{
+  "nav": {
+    "home": "Home",
+    "ai": "AI",
+    "knowledgeBase": "Knowledge Base",
+    "explore": "Explore"
+  },
+  "knowledgeBase": {
+    "title": "Knowledge Base",
+    "uploadButton": "Upload File",
+    "columns": {
+      "fileName": "File Name",
+      "size": "Size",
+      "status": "Status",
+      "uploadTime": "Upload Time",
+      "actions": "Actions"
+    },
+    "status": {
+      "uploading": "Uploading",
+      "processing": "Processing",
+      "completed": "Completed",
+      "failed": "Failed",
+      "queued": "Queued",
+      "unknown": "Unknown"
+    },
+    "actions": {
+      "preview": "Preview",
+      "delete": "Delete"
+    },
+    "messages": {
+      "loadFailed": "Failed to load file list",
+      "deleteFailed": "Delete failed",
+      "deleteSuccess": "Deleted successfully",
+      "uploadFailed": "Operation failed",
+      "uploadSuccess": "Uploaded and processed successfully",
+      "uploading": "Uploading...",
+      "ingesting": "Ingesting to knowledge base...",
+      "linkFailed": "Failed to get link",
+      "noLink": "Unable to get file link"
+    },
+    "deleteConfirm": {
+      "title": "Confirm Delete?",
+      "content": "Are you sure you want to delete \"{{name}}\"? This will also remove related knowledge base vectors."
+    },
+    "viewReason": "(View reason)"
+  },
+  "aiChat": {
+    "placeholder": "Send a message to FLOW...",
+    "newConversation": "New Chat",
+    "enableKnowledgeBase": "Enable KB",
+    "uploadMaterial": "Upload",
+    "startNewChat": "Start a new conversation"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred"
+  }
+}

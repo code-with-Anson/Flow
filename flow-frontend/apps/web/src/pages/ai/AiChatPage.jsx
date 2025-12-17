@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Layout, List, Button, Typography, message, theme } from 'antd';
-import { PlusOutlined, DeleteOutlined, MessageOutlined } from '@ant-design/icons';
+import { Layout, List, Button, Typography, message, theme, Switch, Upload } from 'antd';
+import { PlusOutlined, DeleteOutlined, MessageOutlined, CloudUploadOutlined } from '@ant-design/icons';
 import { Bubble, Sender } from '@ant-design/x';
 import { XMarkdown } from '@ant-design/x-markdown';
 import '@ant-design/x-markdown/es/XMarkdown/index.css';
@@ -9,8 +9,11 @@ import {
     createConversation, 
     getConversationMessages, 
     deleteConversation, 
-    streamChat 
+    streamChat,
+    ingestFile
 } from '../../api/ai';
+import { uploadFile } from '../../api/file';
+import { useTranslation } from 'react-i18next';
 import MainLayout from '../../components/layout/MainLayout';
 
 
@@ -19,6 +22,7 @@ const { Text } = Typography;
 
 const AiChatPage = () => {
     const { token } = theme.useToken();
+    const { t } = useTranslation();
     
     // State
     const [conversations, setConversations] = useState([]);
@@ -26,6 +30,7 @@ const AiChatPage = () => {
     const [messages, setMessages] = useState([]); // Array of { role, content, id }
     const [loading, setLoading] = useState(false);
     const [inputValue, setInputValue] = useState('');
+    const [useKnowledgeBase, setUseKnowledgeBase] = useState(false); // RAG Toggle
     const [streamingContent, setStreamingContent] = useState(''); // Current incomplete AI response
     const messagesEndRef = useRef(null);
     const chatContainerRef = useRef(null);
@@ -160,7 +165,10 @@ const AiChatPage = () => {
         const reqData = {
             conversationId: currentConversationId,
             message: content,
-            model: 'gemini-2.5-flash' // Default
+            conversationId: currentConversationId,
+            message: content,
+            model: 'gemini-2.5-flash', // Default
+            useKnowledgeBase: useKnowledgeBase // Pass RAG toggle state
         };
 
         // If no conversation selected, backend might need to handle creation or we enforce creation first.
@@ -243,7 +251,7 @@ const AiChatPage = () => {
                     flexDirection: 'column',
                 }}>
                     <div style={{ padding: '20px' }}>
-                         <Button 
+                        <Button 
                             type="primary" 
                             shape="round" 
                             block 
@@ -251,7 +259,7 @@ const AiChatPage = () => {
                             onClick={handleNewConversation}
                             style={{ boxShadow: 'none' }}
                         >
-                            新对话
+                            {t('aiChat.newConversation')}
                         </Button>
                     </div>
                     <div style={{ flex: 1, overflowY: 'auto' }}>
@@ -295,7 +303,7 @@ const AiChatPage = () => {
                      <div ref={chatContainerRef} style={{ 
                          flex: 1, 
                          overflowY: 'auto', 
-                         padding: '40px 10% 100px 10%',
+                         padding: '40px 10% 240px 10%',
                          scrollBehavior: 'smooth'
                     }}>
                         {messages.length === 0 && !streamingContent ? (
@@ -309,7 +317,7 @@ const AiChatPage = () => {
                                 userSelect: 'none'
                             }}>
                                 <MessageOutlined style={{ fontSize: 48, marginBottom: 16, opacity: 0.5 }} />
-                                <Text type="secondary">开始一个新的对话吧</Text>
+                                <Text type="secondary">{t('aiChat.startNewChat')}</Text>
                             </div>
                         ) : (
                             <Bubble.List 
@@ -356,7 +364,7 @@ const AiChatPage = () => {
                          padding: '24px calc(10% + 40px)', 
                          background: 'linear-gradient(to top, #ffffff 80%, rgba(255,255,255,0))',
                      }}>
-                         <div style={{ 
+                     <div style={{ 
                              background: '#fff', 
                              borderRadius: '24px', 
                              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
@@ -368,10 +376,58 @@ const AiChatPage = () => {
                                  onChange={(v) => setInputValue(v)}
                                  onSubmit={handleSubmit}
                                  loading={loading}
-                                 placeholder="给樱和晓发送消息..."
+                                 placeholder={t('aiChat.placeholder')}
                                  style={{ border: 'none', background: 'transparent' }}
                              />
-                         </div>
+                          </div>
+                          
+                          {/* Knowledge Base Toggle & Tools */}
+                          <div style={{ 
+                              marginTop: '8px', 
+                              display: 'flex', 
+                              justifyContent: 'flex-end',
+                              alignItems: 'center',
+                              paddingRight: '12px',
+                              gap: '16px'
+                          }}>
+                              {/* File Upload for Knowledge Base */}
+                              <Upload
+                                showUploadList={false}
+                                customRequest={async ({ file, onSuccess, onError }) => {
+                                  try {
+                                    message.loading({ content: '正在上传...', key: 'upload' });
+                                    const res = await uploadFile(file);
+                                    if(res && res.code === 200) {
+                                      const remoteFile = res.data;
+                                      message.loading({ content: '正在摄入知识库...', key: 'upload' });
+                                      await ingestFile(remoteFile.id, remoteFile.name);
+                                      message.success({ content: '已添加到知识库', key: 'upload' });
+                                      onSuccess();
+                                    } else {
+                                      throw new Error(res.msg || '上传失败');
+                                    }
+                                  } catch (err) {
+                                    console.error(err);
+                                    message.error({ content: '上传/处理失败', key: 'upload' });
+                                    onError(err);
+                                  }
+                                }}
+                              >
+                                <Button size="small" icon={<CloudUploadOutlined />} type="text">
+                                  {t('aiChat.uploadMaterial')}
+                                </Button>
+                              </Upload>
+
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <Text type="secondary" style={{ fontSize: '12px' }}>{t('aiChat.enableKnowledgeBase')}</Text>
+                                  <Switch 
+                                      size="small" 
+                                      checked={useKnowledgeBase} 
+                                      onChange={setUseKnowledgeBase} 
+                                      style={{ background: useKnowledgeBase ? '#f472b6' : undefined }}
+                                  />
+                              </div>
+                          </div>
                      </div>
                 </div>
             </div>

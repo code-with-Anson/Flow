@@ -24,6 +24,17 @@ public class ChatSakuraReq {
     @Schema(description = "AI 提供商", defaultValue = "OPENAI")
     private AiProvider provider = AiProvider.OPENAI;
 
+    @Schema(description = "是否启用知识库")
+    private Boolean useKnowledgeBase;
+
+    public Boolean getUseKnowledgeBase() {
+        return useKnowledgeBase;
+    }
+
+    public void setUseKnowledgeBase(Boolean useKnowledgeBase) {
+        this.useKnowledgeBase = useKnowledgeBase;
+    }
+
     public Long getConversationId() {
         return conversationId;
     }

@@ -125,3 +125,14 @@ function parseSSEEvent(event) {
     // 多个 data 行用换行符连接（这是 SSE 标准）
     return dataLines.join('\n');
 }
+
+/**
+ * Ingest a file into Knowledge Base
+ * @param {string} fileId 
+ * @param {string} description 
+ */
+export const ingestFile = (fileId, description) => {
+    return axios.post('/ai/ingest', null, {
+        params: { fileId, description }
+    });
+};

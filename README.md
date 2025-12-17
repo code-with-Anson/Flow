@@ -59,10 +59,10 @@ https://github.com/code-with-Anson/LifeBook
 ### 前端 (Frontend)
 
 - **语言**: TypeScript
-- **框架**: Vue 3
+- **框架**: React 19
 - **构建工具**: Vite
-- **状态管理**: Pinia
-- **UI 组件库**: Element Plus
+- **状态管理**: React Hooks
+- **UI 组件库**: Ant Design 6
 - **网络请求**: Axios
 
 ### 数据与中间件 (Data & Middleware)
@@ -127,7 +127,7 @@ Flow/
 ├── flow-backend/        # 后端工程 (Spring Boot)
 │   ├── src/main/java    # Java 源代码
 │   └── src/main/resources # 配置文件
-├── flow-frontend/       # 前端工程 (Vue 3)
+├── flow-frontend/       # 前端工程 (React 19)
 ├── 项目蓝图/             # 项目设计文档与资料
 └── README.md            # 项目说明文档
 ```

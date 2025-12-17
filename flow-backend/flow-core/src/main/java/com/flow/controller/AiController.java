@@ -6,6 +6,8 @@ import com.flow.common.context.SakuraIdentify;
 import com.flow.model.entity.AiConversation;
 import com.flow.model.entity.AiMessage;
 import com.flow.service.ConversationService;
+import com.flow.service.MultimodalSearchService;
+
 import org.springframework.http.MediaType;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,6 +28,9 @@ public class AiController {
 
     @Resource
     private AiService aiService;
+
+    @Resource
+    private MultimodalSearchService multimodalSearchService;
 
     @Resource
     private ConversationService conversationService;
@@ -67,5 +72,13 @@ public class AiController {
     @DeleteMapping("/conversation/{id}")
     public void deleteConversation(@PathVariable Long id) {
         conversationService.deleteConversation(id);
+    }
+
+    @Operation(summary = "摄入知识库文件")
+    @PostMapping("/ingest")
+    public void ingestFile(@RequestParam Long fileId, @RequestParam(required = false) String description) {
+        Long userId = SakuraIdentify.getCurrentUserId();
+        // Use default model or specific one if needed
+        multimodalSearchService.processUploadedFile(fileId, description, String.valueOf(userId), null);
     }
 }
