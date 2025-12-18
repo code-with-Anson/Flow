@@ -6,21 +6,65 @@ spring:
   profiles:
     active: @SakuraChoose@
     include: ai,mybatis,elasticsearch,rabbitmq,minio,redis
-
   servlet:
     multipart:
       max-file-size: 1GB
       max-request-size: 10GB
 
-flow:
-  jwt:
-    secret: ${jwt.secret}
-    expiration: ${jwt.expiration}
-    
+# Database Configuration
+mysql:
+  host: localhost
+  port: 3306
+  username: root
+  password: password
+
+# Message Queue
+rabbitmq:
+  host: localhost
+  port: 5672
+  username: guest
+  password: guest
+
+# Search Engine
+elasticsearch:
+  uris: http://localhost:9200
+
+# Cache
+redis:
+  host: localhost
+  port: 6379
+  password: password
+  database: 0
+
+# Object Storage
+minio:
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket-name: flow
+  external-endpoint: ""
+
+# Security
+jwt:
+  secret: TenkouAkatsukiAndKasumiameSakuraTenkouAkatsukiAndKasumiameSakura
+  expiration: 2592000000
+
+
+# Documentation
 knife4j:
   basic:
     enable: false
+
+# AI Configuration
 ai:
+  openai:
+    api-key: ${OPENROUTER_API_KEY}
+    base-url: https://openrouter.ai/api/v1
+    model: google/gemini-3-flash-preview
+  dashscope:
+    api-key: ${DASHSCOPE_API_KEY}
+    model: qwen2.5-vl-embedding
+    dimension: 2048
   rag:
     context-limit: 3000
     max-docs: 5

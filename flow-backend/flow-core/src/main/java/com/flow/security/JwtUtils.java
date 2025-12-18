@@ -10,10 +10,10 @@ import java.util.Date;
 @Component
 public class JwtUtils {
 
-    @Value("${flow.jwt.secret:flow_secret_key_should_be_very_long_and_secure_at_least_256_bits}")
+    @Value("${jwt.secret:flow_secret_key_should_be_very_long_and_secure_at_least_256_bits}")
     private String secret;
 
-    @Value("${flow.jwt.expiration:86400000}")
+    @Value("${jwt.expiration:86400000}")
     private long expiration;
 
     private Key getSigningKey() {
