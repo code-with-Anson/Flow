@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication(exclude = {
         org.springframework.ai.autoconfigure.openai.OpenAiAutoConfiguration.class
+        // 这里樱和晓帮我禁用了OPENAI自带的自动装配，因为我们需要使用dynamicAiFactory动态创建Client
 })
 public class FlowApplication {
 
