@@ -1,4 +1,4 @@
-package com.flow.redis;
+package com.flow.config.redis;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

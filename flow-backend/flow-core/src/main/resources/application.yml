@@ -5,11 +5,32 @@ server:
 spring:
   profiles:
     active: @SakuraChoose@
-    include: ai,mybatis,elasticsearch,rabbitmq,minio,redis
   servlet:
     multipart:
       max-file-size: 1GB
       max-request-size: 10GB
+  # Database (MyBatis-Plus)
+  datasource:
+    url: jdbc:mysql://${mysql.host}:${mysql.port}/flow_db?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: ${mysql.username}
+    password: ${mysql.password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  # Elasticsearch
+  elasticsearch:
+    uris: ${elasticsearch.uris}
+    socket-timeout: 30s
+    connection-timeout: 5s
+  # RabbitMQ
+  rabbitmq:
+    host: ${rabbitmq.host}
+    port: ${rabbitmq.port}
+    username: ${rabbitmq.username}
+    password: ${rabbitmq.password}
+
+# MyBatis-Plus
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
 
 # Database Configuration
 mysql:

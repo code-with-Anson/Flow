@@ -4,7 +4,7 @@ import com.flow.ai.service.MultimodalEmbeddingService;
 import com.flow.model.dto.FileProcessingMessage;
 import com.flow.model.entity.File;
 import com.flow.model.es.MultimodalAsset;
-import com.flow.oss.OssTemplate;
+import com.flow.config.oss.OssTemplate;
 import com.flow.repository.es.MultimodalAssetRepository;
 import com.flow.service.FileService;
 import lombok.RequiredArgsConstructor;

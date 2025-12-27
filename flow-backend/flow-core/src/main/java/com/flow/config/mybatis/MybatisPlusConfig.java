@@ -1,7 +1,6 @@
-package com.flow.mybatis.config;
+package com.flow.config.mybatis;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
-import com.flow.mybatis.handler.CurrentUserProvider;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Bean;

@@ -1,4 +1,4 @@
-package com.flow.oss;
+package com.flow.config.oss;
 
 import io.minio.*;
 import io.minio.http.Method;

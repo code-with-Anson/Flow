@@ -1,6 +1,6 @@
 package com.flow.security;
 
-import com.flow.mybatis.handler.CurrentUserProvider;
+import com.flow.config.mybatis.CurrentUserProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;

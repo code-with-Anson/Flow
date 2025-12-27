@@ -19,7 +19,6 @@
     <modules>
         <module>flow-core</module>
         <module>flow-ai</module>
-        <module>flow-tools</module>
     </modules>
 
     <properties>
@@ -55,31 +54,6 @@
             <dependency>
                 <groupId>com.flow</groupId>
                 <artifactId>flow-core</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.flow</groupId>
-                <artifactId>flow-mybatis-starter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.flow</groupId>
-                <artifactId>flow-minio-starter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.flow</groupId>
-                <artifactId>flow-elasticsearch-starter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.flow</groupId>
-                <artifactId>flow-rabbitmq-starter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.flow</groupId>
-                <artifactId>flow-oss</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

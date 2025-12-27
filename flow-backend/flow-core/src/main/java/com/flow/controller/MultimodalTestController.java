@@ -3,7 +3,7 @@ package com.flow.controller;
 import com.flow.common.context.SakuraIdentify;
 import com.flow.model.entity.File;
 import com.flow.model.es.MultimodalAsset;
-import com.flow.oss.OssTemplate;
+import com.flow.config.oss.OssTemplate;
 import com.flow.service.MultimodalSearchService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
