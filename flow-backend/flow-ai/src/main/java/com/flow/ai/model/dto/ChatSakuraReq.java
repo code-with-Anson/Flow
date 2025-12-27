@@ -9,6 +9,9 @@ public class ChatSakuraReq {
     @Schema(description = "对话ID（可选，新对话不传）")
     private Long conversationId;
 
+    @Schema(description = "供应商配置ID")
+    private Long providerId;
+
     @Schema(description = "用户消息", requiredMode = Schema.RequiredMode.REQUIRED)
     private String message;
 
@@ -41,6 +44,14 @@ public class ChatSakuraReq {
 
     public void setConversationId(Long conversationId) {
         this.conversationId = conversationId;
+    }
+
+    public Long getProviderId() {
+        return providerId;
+    }
+
+    public void setProviderId(Long providerId) {
+        this.providerId = providerId;
     }
 
     public String getMessage() {

@@ -1,6 +1,5 @@
 package com.flow.service.impl;
 
-import com.flow.ai.factory.AiStrategyFactory;
 import com.flow.ai.model.dto.ChatSakuraReq;
 import com.flow.service.AiService;
 import com.flow.service.MultimodalSearchService;
@@ -13,6 +12,10 @@ import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.openai.OpenAiChatOptions;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -25,18 +28,18 @@ import java.util.stream.Collectors;
 @Service
 public class AiServiceImpl implements AiService {
 
-    private final AiStrategyFactory aiStrategyFactory;
     private final ConversationService conversationService;
     private final MultimodalSearchService multimodalSearchService;
+    private final com.flow.factory.DynamicAiFactory dynamicAiFactory;
 
     @Value("${ai.rag.context-limit:6000}")
     private int ragContextLimit;
 
-    public AiServiceImpl(AiStrategyFactory aiStrategyFactory, ConversationService conversationService,
-            MultimodalSearchService multimodalSearchService) {
-        this.aiStrategyFactory = aiStrategyFactory;
+    public AiServiceImpl(ConversationService conversationService,
+            MultimodalSearchService multimodalSearchService, com.flow.factory.DynamicAiFactory dynamicAiFactory) {
         this.conversationService = conversationService;
         this.multimodalSearchService = multimodalSearchService;
+        this.dynamicAiFactory = dynamicAiFactory;
     }
 
     @Override
@@ -124,12 +127,43 @@ public class AiServiceImpl implements AiService {
                 .defaultIfEmpty(Collections.emptyList())
                 .flatMapMany(history -> {
                     StringBuilder aiResponseBuilder = new StringBuilder();
-                    // 3. 调用 AI
-                    return aiStrategyFactory.getStrategy(request.getProvider())
-                            .streamChat(request, history)
+                    Flux<String> responseFlux;
+
+                    if (request.getProviderId() != null) {
+                        // Dynamic Path via DynamicAiFactory
+                        ChatClient client = dynamicAiFactory.getChatClient(request.getProviderId());
+
+                        List<Message> messages = new ArrayList<>();
+                        messages.add(new SystemMessage("你是一位友善的 AI 助手，能够帮助用户回答问题、提供信息。"));
+                        if (history != null)
+                            messages.addAll(history);
+                        messages.add(new UserMessage(request.getMessage()));
+
+                        OpenAiChatOptions.Builder optionsBuilder = OpenAiChatOptions.builder();
+                        if (StringUtils.hasText(request.getModel())) {
+                            optionsBuilder.withModel(request.getModel());
+                        }
+
+                        // Fix for temperature lint if needed, but here we just use what we have or
+                        // defaults
+                        // Note: DynamicAiFactory sets defaults, Prompt options override them.
+
+                        Prompt prompt = new Prompt(messages, optionsBuilder.build());
+
+                        responseFlux = client.prompt(prompt)
+                                .stream()
+                                .content()
+                                .onErrorResume(e -> Flux.just("Dynamic AI Error: " + e.getMessage()));
+                    } else {
+                        // Strict Mode: Legacy usage is forbidden
+                        throw new IllegalArgumentException(
+                                "Strict Mode Enabled: Provider ID is required. Please check your settings.");
+                    }
+
+                    // 3. 调用 AI & 4. 保存回复
+                    return responseFlux
                             .doOnNext(aiResponseBuilder::append)
                             .doOnComplete(() -> {
-                                // 4. 保存 AI 回复 (阻塞)
                                 if (conversationId != null && aiResponseBuilder.length() > 0) {
                                     Mono.fromRunnable(() -> conversationService.addMessage(conversationId, "ai",
                                             aiResponseBuilder.toString())).subscribeOn(Schedulers.boundedElastic())
@@ -138,7 +172,32 @@ public class AiServiceImpl implements AiService {
                             });
                 })
                 .switchIfEmpty(
-                        aiStrategyFactory.getStrategy(request.getProvider()).streamChat(request,
-                                Collections.emptyList()));
+                        // Fallback handling if history loading failed somehow, but usually flatMapMany
+                        // handles empty Flux gracefully by not emitting.
+                        // However, defaultIfEmpty above ensures history is at least empty list.
+                        // We still need to run the AI logic if history was empty.
+                        // The above flatMapMany logic covers both cases (history list is just empty).
+                        // So we might not need switchIfEmpty logic duplication if we structured it
+                        // right.
+                        // But to strictly follow the previous pattern where switchIfEmpty was used for
+                        // cached empty list:
+                        Flux.defer(() -> {
+                            // This block is only hit if the MONO is empty, but we used
+                            // defaultIfEmpty(Collections.emptyList())
+                            // So the Mono<List> is never empty.
+                            // Thus flatMapMany is always executed.
+                            // So the original switchIfEmpty usage was likely redundant or I misunderstood.
+                            // Wait, existing code:
+                            // .defaultIfEmpty(Collections.emptyList()).flatMapMany(...) .switchIfEmpty(...)
+                            // If defaultIfEmpty is there, switchIfEmpty on the Mono chain is reachable?
+                            // No, flatMapMany returns a Flux. code was:
+                            // .defaultIfEmpty(Collections.emptyList()).flatMapMany(...).switchIfEmpty(...)
+                            // The switchIfEmpty is on the FLUX returned by flatMapMany?
+                            // If flatMapMany returns empty Flux?
+                            // No, flatMapMany returns the result of the lambda.
+                            // Our lambda always returns a Flux (from Strategy).
+                            // So we don't need switchIfEmpty unless the Strategy returns empty flux.
+                            return Flux.empty();
+                        }));
     }
 }

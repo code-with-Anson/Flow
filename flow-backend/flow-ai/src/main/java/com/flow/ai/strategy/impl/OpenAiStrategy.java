@@ -45,7 +45,18 @@ public class OpenAiStrategy implements AiStrategy {
         messages.add(new UserMessage(request.getMessage()));
 
         // 4. Create Prompt and Stream
-        return getChatClient(request).prompt(new Prompt(messages))
+        OpenAiChatOptions.Builder optionsBuilder = OpenAiChatOptions.builder();
+        if (StringUtils.hasText(request.getModel())) {
+            optionsBuilder.withModel(request.getModel());
+        }
+
+        // 如果是自定义 Client (Identity 2) 已经在 getChatClient 里配了 Options
+        // 但 Prompt 级别的 Options 优先级更高，可以覆盖 Model
+        // 所以这里统一加上 Prompt Options 是安全的，且能支持 Default Client 的覆盖
+
+        Prompt prompt = new Prompt(messages, optionsBuilder.build());
+
+        return getChatClient(request).prompt(prompt)
                 .stream()
                 .content()
                 .onErrorResume(e -> {
