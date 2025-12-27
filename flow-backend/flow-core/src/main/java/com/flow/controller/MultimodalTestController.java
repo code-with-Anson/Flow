@@ -1,6 +1,7 @@
 package com.flow.controller;
 
 import com.flow.common.context.SakuraIdentify;
+import com.flow.common.result.SakuraReply;
 import com.flow.model.entity.File;
 import com.flow.model.es.MultimodalAsset;
 import com.flow.config.oss.OssTemplate;
@@ -25,39 +26,38 @@ public class MultimodalTestController {
 
     @Operation(summary = "上传文件并生成向量", description = "支持图片、视频和文本文件的上传，自动生成向量并存储到 Elasticsearch")
     @PostMapping("/upload")
-    public File upload(
+    public SakuraReply<File> upload(
             @Parameter(description = "要上传的文件（支持图片/视频/文本）", required = true) @RequestParam("file") MultipartFile file,
             @Parameter(description = "文件描述信息", example = "这是一张美丽的风景照") @RequestParam(value = "description", required = false) String description,
             @Parameter(description = "向量模型名称（留空使用默认模型）", example = "qwen2.5-vl-embedding") @RequestParam(value = "model", required = false) String model) {
-        // 从上下文获取当前登录用户ID
         String userId = String.valueOf(SakuraIdentify.getCurrentUserId());
-        return multimodalSearchService.initiateUpload(file, description, userId, model);
+        return SakuraReply.success(multimodalSearchService.initiateUpload(file, description, userId, model));
     }
 
     @Operation(summary = "触发文件处理", description = "用于分片上传完成后，手动触发文件的向量化处理")
     @PostMapping("/process")
-    public com.flow.common.result.SakuraReply<Void> process(
+    public SakuraReply<Void> process(
             @Parameter(description = "文件ID", required = true) @RequestParam("fileId") Long fileId,
             @Parameter(description = "文件描述信息") @RequestParam(value = "description", required = false) String description,
             @Parameter(description = "向量模型名称") @RequestParam(value = "model", required = false) String model) {
         String userId = String.valueOf(SakuraIdentify.getCurrentUserId());
         multimodalSearchService.processUploadedFile(fileId, description, userId, model);
-        return com.flow.common.result.SakuraReply.success();
+        return SakuraReply.success();
     }
 
     @Operation(summary = "多模态向量检索", description = "根据文本、图片URL或视频URL进行相似度检索")
     @GetMapping("/search")
-    public List<MultimodalAsset> search(
+    public SakuraReply<List<MultimodalAsset>> search(
             @Parameter(description = "检索查询（文本内容或图片/视频URL）", required = true, example = "美丽的风景") @RequestParam("query") String query,
             @Parameter(description = "查询类型", example = "text") @RequestParam(value = "type", defaultValue = "text") String type,
             @Parameter(description = "向量模型名称（留空使用默认模型）", example = "qwen2.5-vl-embedding") @RequestParam(value = "model", required = false) String model) {
-        return multimodalSearchService.search(query, type, model);
+        return SakuraReply.success(multimodalSearchService.search(query, type, model));
     }
 
-    @Operation(summary = "获取文件外部访问链接", description = "生成 MinIO 文件的外部预签名访问链接（如配置了内网穿透则返回外网地址）")
+    @Operation(summary = "获取文件外部访问链接", description = "生成 MinIO 文件的外部预签名访问链接")
     @GetMapping("/url")
-    public String getExternalUrl(
+    public SakuraReply<String> getExternalUrl(
             @Parameter(description = "文件路径", required = true, example = "merged/example.jpg") @RequestParam("fileName") String fileName) {
-        return ossTemplate.getExternalPresignedUrl(fileName);
+        return SakuraReply.success(ossTemplate.getExternalPresignedUrl(fileName));
     }
 }

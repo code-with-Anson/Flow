@@ -3,6 +3,7 @@ package com.flow.controller;
 import com.flow.ai.model.dto.ChatSakuraReq;
 import com.flow.service.AiService;
 import com.flow.common.context.SakuraIdentify;
+import com.flow.common.result.SakuraReply;
 import com.flow.model.entity.AiConversation;
 import com.flow.model.entity.AiMessage;
 import com.flow.service.ConversationService;
@@ -44,41 +45,43 @@ public class AiController {
 
     @Operation(summary = "创建对话")
     @PostMapping("/conversation")
-    public AiConversation createConversation(@RequestParam(required = false) String title) {
+    public SakuraReply<AiConversation> createConversation(@RequestParam(required = false) String title) {
         Long userId = SakuraIdentify.getCurrentUserId();
-        return conversationService.createConversation(userId, title);
+        return SakuraReply.success(conversationService.createConversation(userId, title));
     }
 
     @Operation(summary = "获取对话列表")
     @GetMapping("/conversation")
-    public List<AiConversation> listConversations() {
+    public SakuraReply<List<AiConversation>> listConversations() {
         Long userId = SakuraIdentify.getCurrentUserId();
-        return conversationService.listUserConversations(userId);
+        return SakuraReply.success(conversationService.listUserConversations(userId));
     }
 
     @Operation(summary = "获取对话详情")
     @GetMapping("/conversation/{id}")
-    public List<AiMessage> getConversationMessages(@PathVariable Long id) {
-        return conversationService.getConversationMessages(id);
+    public SakuraReply<List<AiMessage>> getConversationMessages(@PathVariable Long id) {
+        return SakuraReply.success(conversationService.getConversationMessages(id));
     }
 
     @Operation(summary = "更新对话标题")
     @PutMapping("/conversation/{id}/title")
-    public void updateConversationTitle(@PathVariable Long id, @RequestParam String title) {
+    public SakuraReply<Void> updateConversationTitle(@PathVariable Long id, @RequestParam String title) {
         conversationService.updateConversationTitle(id, title);
+        return SakuraReply.success();
     }
 
     @Operation(summary = "删除对话")
     @DeleteMapping("/conversation/{id}")
-    public void deleteConversation(@PathVariable Long id) {
+    public SakuraReply<Void> deleteConversation(@PathVariable Long id) {
         conversationService.deleteConversation(id);
+        return SakuraReply.success();
     }
 
     @Operation(summary = "摄入知识库文件")
     @PostMapping("/ingest")
-    public void ingestFile(@RequestParam Long fileId, @RequestParam(required = false) String description) {
+    public SakuraReply<Void> ingestFile(@RequestParam Long fileId, @RequestParam(required = false) String description) {
         Long userId = SakuraIdentify.getCurrentUserId();
-        // Use default model or specific one if needed
         multimodalSearchService.processUploadedFile(fileId, description, String.valueOf(userId), null);
+        return SakuraReply.success();
     }
 }

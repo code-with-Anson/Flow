@@ -17,7 +17,7 @@ public class RabbitMQConsumer {
 
     private final MultimodalSearchService multimodalSearchService;
 
-    @RabbitListener(bindings = @QueueBinding(value = @Queue(value = "flow.file.queue", durable = "true"), exchange = @Exchange(value = RabbitMQProducer.EXCHANGE_NAME), key = RabbitMQProducer.ROUTING_KEY))
+    @RabbitListener(bindings = @QueueBinding(value = @Queue(value = "flow.file.queue", durable = "true"), exchange = @Exchange(value = "${flow.mq.exchange-name}"), key = "${flow.mq.routing-key}"))
     public void receiveFileProcessingMessage(FileProcessingMessage message) {
         log.info("Received file processing message: {}", message);
         try {

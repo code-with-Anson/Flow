@@ -46,6 +46,12 @@ rabbitmq:
   username: guest
   password: guest
 
+# Flow MQ Configuration
+flow:
+  mq:
+    exchange-name: flow.file.exchange
+    routing-key: flow.file.process
+
 # Search Engine
 elasticsearch:
   uris: http://localhost:9200
