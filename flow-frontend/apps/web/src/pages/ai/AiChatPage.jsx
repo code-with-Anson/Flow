@@ -69,11 +69,7 @@ const AiChatPage = () => {
     const fetchConversations = async () => {
         try {
             const res = await listConversations();
-            setConversations(res || []);
-            // Optional: Auto-select first conversation
-            // if (res && res.length > 0 && !currentConversationId) {
-            //     setCurrentConversationId(res[0].id);
-            // }
+            setConversations(res?.data || []);
         } catch (err) {
             console.error(err);
             message.error('加载会话列表失败');
@@ -84,9 +80,8 @@ const AiChatPage = () => {
         try {
             setLoading(true);
             const res = await getConversationMessages(id);
-            // Backend returns ASC (oldest first)
-            // 保持原始字符串，在 renderBubbles 中统一处理 markdown 渲染
-            const mapped = (res || []).map(msg => ({
+            const data = res?.data || [];
+            const mapped = data.map(msg => ({
                 key: msg.id,
                 role: msg.role,
                 content: msg.content,
@@ -130,9 +125,12 @@ const AiChatPage = () => {
     const handleNewConversation = async () => {
         try {
             const res = await createConversation('新对话');
-            setConversations([res, ...conversations]);
-            setCurrentConversationId(res.id);
-            setMessages([]);
+            const newConv = res?.data;
+            if (newConv) {
+                setConversations([newConv, ...conversations]);
+                setCurrentConversationId(newConv.id);
+                setMessages([]);
+            }
         } catch (err) {
             console.error(err);
             message.error('创建会话失败');
@@ -183,11 +181,14 @@ const AiChatPage = () => {
             let targetId = currentConversationId;
             if (!targetId) {
                 try {
-                    const newConv = await createConversation(content.slice(0, 10)); // Use first chars as title
-                    targetId = newConv.id;
-                    setConversations([newConv, ...conversations]);
-                    setCurrentConversationId(targetId);
-                    reqData.conversationId = targetId; // Update req
+                    const res = await createConversation(content.slice(0, 10));
+                    const newConv = res?.data;
+                    if (newConv) {
+                        targetId = newConv.id;
+                        setConversations([newConv, ...conversations]);
+                        setCurrentConversationId(targetId);
+                        reqData.conversationId = targetId;
+                    }
                 } catch (e) {
                     console.error(e);
                     message.error("无法创建会话");
