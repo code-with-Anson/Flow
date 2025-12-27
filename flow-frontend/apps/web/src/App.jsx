@@ -7,6 +7,7 @@ import Register from './pages/auth/Register';
 import Explore from './pages/Explore';
 import AiChatPage from './pages/ai/AiChatPage';
 import KnowledgeBasePage from './pages/ai/KnowledgeBasePage';
+import AiProviderSettings from './pages/ai/AiProviderSettings';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -43,6 +44,11 @@ function App() {
           <Route path="/ai" element={
             <PrivateRoute>
               <AiChatPage />
+            </PrivateRoute>
+          } />
+          <Route path="/ai/settings" element={
+            <PrivateRoute>
+              <AiProviderSettings />
             </PrivateRoute>
           } />
           <Route path="/ai/knowledge" element={

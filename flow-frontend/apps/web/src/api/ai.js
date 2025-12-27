@@ -32,14 +32,16 @@ export const deleteConversation = (id) => {
 /**
  * 流式对话 (使用 fetch 实现 SSE)
  * 
+ * @param {Object} data - 请求数据
+ * @param {number} data.conversationId - 对话ID
+ * @param {string} data.message - 用户消息
+ * @param {number} data.providerId - AI供应商ID (必须)
+ * @param {string} data.model - 模型名称
+ * @param {boolean} data.useKnowledgeBase - 是否使用知识库
+ * 
  * SSE 格式说明：
  * - 每个事件以 \n\n 分隔
  * - 一个事件可以有多个 data: 行，它们应该用换行符连接
- * - 例如：后端发送 "hello\nworld" 会变成：
- *   data: hello
- *   data: world
- *   
- *   (空行表示事件结束)
  */
 export const streamChat = async (data, onChunk, onFinish, onError) => {
     const token = localStorage.getItem('token');

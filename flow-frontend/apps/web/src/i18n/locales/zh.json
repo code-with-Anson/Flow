@@ -49,7 +49,27 @@
     "newConversation": "新对话",
     "enableKnowledgeBase": "启用知识库",
     "uploadMaterial": "上传资料",
-    "startNewChat": "开始一个新的对话吧"
+    "startNewChat": "开始一个新的对话吧",
+    "providerSettings": "供应商设置",
+    "selectProvider": "选择供应商",
+    "selectModel": "选择模型",
+    "noProvider": "请先添加 AI 供应商"
+  },
+  "provider": {
+    "title": "AI 供应商设置",
+    "add": "添加供应商",
+    "edit": "编辑供应商",
+    "name": "配置名称",
+    "type": "供应商类型",
+    "baseUrl": "API 地址",
+    "apiKey": "API Key",
+    "models": "可用模型",
+    "priority": "排序优先级",
+    "enabled": "启用状态",
+    "addSuccess": "添加成功",
+    "updateSuccess": "更新成功",
+    "deleteSuccess": "删除成功",
+    "deleteConfirm": "确定删除此供应商配置吗？"
   },
   "common": {
     "loading": "加载中...",

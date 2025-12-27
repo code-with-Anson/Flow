@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Layout, List, Button, Typography, message, theme, Switch, Upload } from 'antd';
-import { PlusOutlined, DeleteOutlined, MessageOutlined, CloudUploadOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined, MessageOutlined, CloudUploadOutlined, SettingOutlined } from '@ant-design/icons';
 import { Bubble, Sender } from '@ant-design/x';
 import { XMarkdown } from '@ant-design/x-markdown';
 import '@ant-design/x-markdown/es/XMarkdown/index.css';
@@ -15,6 +15,7 @@ import {
 import { uploadFile } from '../../api/file';
 import { useTranslation } from 'react-i18next';
 import MainLayout from '../../components/layout/MainLayout';
+import ProviderSelector from '../../components/ai/ProviderSelector';
 
 
 const { Sider, Content } = Layout;
@@ -32,6 +33,8 @@ const AiChatPage = () => {
     const [inputValue, setInputValue] = useState('');
     const [useKnowledgeBase, setUseKnowledgeBase] = useState(false); // RAG Toggle
     const [streamingContent, setStreamingContent] = useState(''); // Current incomplete AI response
+    const [selectedProviderId, setSelectedProviderId] = useState(null); // AI 供应商ID
+    const [selectedModel, setSelectedModel] = useState(''); // 选中的模型
     const messagesEndRef = useRef(null);
     const chatContainerRef = useRef(null);
 
@@ -165,9 +168,8 @@ const AiChatPage = () => {
         const reqData = {
             conversationId: currentConversationId,
             message: content,
-            conversationId: currentConversationId,
-            message: content,
-            model: 'gemini-2.5-flash', // Default
+            providerId: selectedProviderId, // 使用选中的供应商
+            model: selectedModel, // 使用选中的模型
             useKnowledgeBase: useKnowledgeBase // Pass RAG toggle state
         };
 
@@ -300,6 +302,30 @@ const AiChatPage = () => {
 
                 {/* Main Chat Area */}
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative' }}>
+                     {/* 顶部工具栏: 供应商选择器 */}
+                     <div style={{ 
+                         padding: '12px 10%', 
+                         borderBottom: '1px solid #f0f0f0',
+                         display: 'flex',
+                         justifyContent: 'space-between',
+                         alignItems: 'center',
+                         background: '#fafafa'
+                     }}>
+                         <ProviderSelector
+                             providerId={selectedProviderId}
+                             model={selectedModel}
+                             onProviderChange={(id) => setSelectedProviderId(id)}
+                             onModelChange={(m) => setSelectedModel(m)}
+                         />
+                         <Button 
+                             type="text" 
+                             icon={<SettingOutlined />} 
+                             onClick={() => window.location.href = '/ai/settings'}
+                             size="small"
+                         >
+                             供应商设置
+                         </Button>
+                     </div>
                      <div ref={chatContainerRef} style={{ 
                          flex: 1, 
                          overflowY: 'auto', 

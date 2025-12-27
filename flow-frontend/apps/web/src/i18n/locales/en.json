@@ -49,7 +49,27 @@
     "newConversation": "New Chat",
     "enableKnowledgeBase": "Enable KB",
     "uploadMaterial": "Upload",
-    "startNewChat": "Start a new conversation"
+    "startNewChat": "Start a new conversation",
+    "providerSettings": "Provider Settings",
+    "selectProvider": "Select Provider",
+    "selectModel": "Select Model",
+    "noProvider": "Please add an AI provider first"
+  },
+  "provider": {
+    "title": "AI Provider Settings",
+    "add": "Add Provider",
+    "edit": "Edit Provider",
+    "name": "Name",
+    "type": "Provider Type",
+    "baseUrl": "API URL",
+    "apiKey": "API Key",
+    "models": "Models",
+    "priority": "Priority",
+    "enabled": "Enabled",
+    "addSuccess": "Added successfully",
+    "updateSuccess": "Updated successfully",
+    "deleteSuccess": "Deleted successfully",
+    "deleteConfirm": "Are you sure you want to delete this provider?"
   },
   "common": {
     "loading": "Loading...",
